@@ -12,6 +12,28 @@ This document provides exhaustive detail on all API endpoints, including request
 
 ---
 
+## IMPORTANT: Existing System Context
+
+This marketplace builds on an **existing video analysis and rating system**. Before implementing new endpoints, understand what already exists.
+
+### Current System Architecture
+
+```
+Current System (ALREADY BUILT):
+┌─────────────────────────────────────────────────────────────┐
+│ TikTok URL → Import → GCS Upload → Gemini Analysis → Rating │
+└─────────────────────────────────────────────────────────────┘
+
+New Marketplace Layer (TO BUILD):
+┌─────────────────────────────────────────────────────────────┐
+│ Rated Videos → Abstract Concepts → List → Purchase → View   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+The new marketplace endpoints consume data from existing endpoints—they don't replace them.
+
+---
+
 ## 1. Endpoint Summary
 
 ### Existing Endpoints (From Current System)
@@ -44,6 +66,186 @@ This document provides exhaustive detail on all API endpoints, including request
 | `/api/overlays/:conceptId/:language` | GET | Get subtitles |
 | `/api/overlays/:conceptId/:language` | POST | Generate subtitles |
 | `/api/analytics/arbitrage` | GET | Cross-border metrics |
+
+---
+
+## 1.5 EXISTING ENDPOINTS (Already Implemented)
+
+These endpoints exist in the current codebase. Document them here for completeness.
+
+### POST `/api/tiktok`
+
+Import a TikTok video by URL.
+
+**Request Body**:
+```typescript
+interface TikTokImportRequest {
+  url: string;  // TikTok video URL
+}
+```
+
+**Response**:
+```typescript
+interface TikTokImportResponse {
+  success: boolean;
+  video: {
+    id: string;
+    tiktok_id: string;
+    author: string;
+    description: string;
+    gcs_uri: string;
+    created_at: string;
+  };
+}
+```
+
+**What It Does**:
+1. Calls Supadata API to fetch TikTok metadata
+2. Downloads video file
+3. Uploads to GCS (`gs://hagen-video-analysis/videos/{uuid}.mp4`)
+4. Creates record in `analyzed_videos` table
+5. Does NOT run deep analysis (that's a separate step)
+
+---
+
+### POST `/api/videos/reanalyze`
+
+Run deep Gemini analysis on a video.
+
+**Request Body**:
+```typescript
+interface ReanalyzeRequest {
+  videoId: string;
+  force?: boolean;  // Re-run even if already analyzed
+}
+```
+
+**Response**:
+```typescript
+interface ReanalyzeResponse {
+  success: boolean;
+  video_id: string;
+  analysis: DeepAnalysis;  // Full 170+ feature schema
+  feature_count: number;   // Should be 100+ for v3
+  version: 'v0' | 'v1' | 'v2' | 'v3';
+}
+```
+
+**What It Does**:
+1. Fetches video from GCS
+2. Sends to Gemini 2.0 Flash with structured prompt
+3. Extracts 170+ features into `visual_analysis` JSON
+4. Updates `analyzed_videos.visual_analysis`
+5. Sets `feature_count` for version detection
+
+**Key Note**: This is expensive (~$0.10-0.30 per video). Don't call unnecessarily.
+
+---
+
+### GET `/api/ratings`
+
+List rated videos with their analysis.
+
+**Query Parameters**:
+```typescript
+interface ListRatingsQuery {
+  limit?: number;     // Default 50, max 100
+  offset?: number;
+  videoId?: string;   // Filter by specific video
+}
+```
+
+**Response**:
+```typescript
+interface ListRatingsResponse {
+  ratings: {
+    id: string;
+    video_id: string;
+    video: {
+      id: string;
+      tiktok_id: string;
+      author: string;
+      visual_analysis: DeepAnalysis;  // Full analysis
+    };
+    hook: number;           // 0-1
+    pacing: number;         // 0-1
+    payoff: number;         // 0-1
+    originality: number;    // 0-1
+    rewatchable: number;    // 0-1
+    overall_score: number;  // Computed weighted average
+    notes: string;
+    tags: string[];
+    created_at: string;
+  }[];
+}
+```
+
+**Current Data State (as of Dec 3, 2025)**:
+- ~50 rated videos total
+- ~51 videos with v3 analysis AND ratings (the training set)
+
+---
+
+### POST `/api/ratings`
+
+Save a human rating for a video.
+
+**Request Body**:
+```typescript
+interface CreateRatingRequest {
+  video_id: string;
+  hook: number;        // 0-1
+  pacing: number;
+  payoff: number;
+  originality: number;
+  rewatchable: number;
+  notes?: string;
+  tags?: string[];
+}
+```
+
+**Response**:
+```typescript
+interface CreateRatingResponse {
+  id: string;
+  video_id: string;
+  overall_score: number;  // Computed
+  created_at: string;
+}
+```
+
+**Important**: The `overall_score` is the TARGET VARIABLE for model training. It's what we're trying to predict.
+
+---
+
+### POST `/api/predict-v2`
+
+Get AI prediction before human rating.
+
+**Request Body**:
+```typescript
+interface PredictRequest {
+  video_id: string;
+}
+```
+
+**Response**:
+```typescript
+interface PredictResponse {
+  prediction: {
+    hook: number;
+    pacing: number;
+    payoff: number;
+    originality: number;
+    rewatchable: number;
+    overall: number;
+    confidence: number;
+  };
+  reasoning: string;
+}
+```
+
+**Note**: This prediction is stored in `ai_prediction` field and compared post-rating to measure AI accuracy.
 
 ---
 

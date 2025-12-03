@@ -12,6 +12,101 @@ This document provides exhaustive detail on how the preference model is trained,
 
 ---
 
+## CRITICAL CONTEXT: Solo Rater Model
+
+### This Is NOT Crowdsourced Data
+
+The preference model is trained on ratings from **ONE PERSON** (the owner), not crowdsourced data. This fundamentally shapes the approach:
+
+| Crowdsourced Model | Solo Rater Model |
+|-------------------|------------------|
+| Average across many tastes | Learn one person's taste |
+| Needs 10K+ ratings | Can work with 200-500 ratings |
+| Diverse, noisy signal | Consistent, personal signal |
+| Predicts "popular with masses" | Predicts "this person will like it" |
+| Hard to explain predictions | Can explain in owner's terms |
+
+### Why This Works
+
+The owner has already rated ~50 videos. Through 500 ratings, the model learns:
+- "Owner rates higher when `script.replicability.score > 7`"
+- "Owner rates lower when `trends.memeDependent = true`"
+- "Owner ignores `visual.hookStrength` (no correlation with ratings)"
+
+### Known Owner Preferences (From Prior Analysis)
+
+The owner has stated preferences documented in `AI_HANDOFF.md`:
+
+```typescript
+const knownPreferences = {
+  likes: [
+    'Script-driven comedy with strong concept core',
+    'Self-deprecating humor (business makes fun of itself)',
+    'Low production value is fine ("authentic" look)',
+    'One person can execute (solopreneur-friendly)',
+    'Industry-agnostic formats (swappable premise)',
+    'Strong payoff that subverts expectation'
+  ],
+  dislikes: [
+    'Meme-dependent content (needs context)',
+    'Trending sounds (dates quickly)',
+    'High production requirements',
+    'Attractive-person dependent (relies on looks)',
+    'Complex multi-person choreography'
+  ]
+};
+```
+
+These preferences should **correlate with features** after training. If they don't, something is wrong.
+
+### The Gemini Insight
+
+A key insight from the system: **Gemini's own subjective scores may correlate with human ratings**.
+
+Gemini extracts many "opinion" fields:
+- `replicability.score` (1-10)
+- `comedyStyle.commitmentLevel` (1-10)
+- `standalone.worksWithoutContext` (boolean)
+- `payoff.surpriseRating` (1-10)
+
+These are Gemini's opinions, not objective facts. But they might predict human ratings because:
+1. Gemini was trained on human-generated content and ratings
+2. Gemini's "taste" may overlap with owner's taste
+3. The prompt asks Gemini to evaluate from a business owner's perspective
+
+**Hypothesis to test**: `script.replicability.score` may be the #1 predictor of `overall_score`.
+
+---
+
+## Current Data State (December 2025)
+
+| Metric | Count |
+|--------|-------|
+| Total videos imported | ~102 |
+| Videos with GCS upload | ~73 |
+| Videos with v3 (full analysis) | ~51 |
+| Videos with human ratings | ~50 |
+| **Training-ready (v3 + rating)** | **~51** |
+
+**The 51-video overlap is the starting dataset.** We need to grow this to 200+ for first model.
+
+---
+
+## Budget Constraint: $100-1000
+
+The training approach must fit within this budget:
+
+| Approach | Cost | Feasibility |
+|----------|------|-------------|
+| Simple regression (Ridge) | Free (Python/Node) | ✅ MVP |
+| Random Forest | Free (Python) | ✅ After 500 ratings |
+| Custom GPT fine-tuning | $50-200 | ⚠️ Later if needed |
+| Neural network | Infrastructure cost | ❌ Overkill |
+
+**Decision**: Start with Ridge regression. Zero infrastructure cost, runs locally.
+
+---
+
 ## 1. Training Pipeline Overview
 
 ```
@@ -47,6 +142,10 @@ interface TrainingDataRequirements {
     'overall_score',                     // Target variable
     'visual_analysis.feature_count'      // Must be >= 100
   ];
+  
+  // Current state (Dec 2025)
+  currentReadyVideos: 51;               // Need 149 more
+  targetMilestones: [100, 200, 300, 500];
 }
 ```
 
@@ -418,8 +517,11 @@ function pearsonCorrelation(x: number[], y: number[]): { correlation: number; pV
 
 ### 4.2 Expected Top Correlations (Based on Known Preferences)
 
+The owner's stated preferences (from `AI_HANDOFF.md`) should map to specific features. **Use this as a validation checklist after correlation analysis.**
+
 ```typescript
 const expectedCorrelations = {
+  // POSITIVE: Owner likes these → should correlate positively with overall_score
   strongPositive: [
     'script.replicability.score',           // Easy to replicate
     'script.humor.comedyTiming',            // Good timing
@@ -427,7 +529,10 @@ const expectedCorrelations = {
     'comedyStyle.contrastMechanism.present', // Uses contrast
     'flexibility.swappableCore',            // Adaptable
     'script.structure.payoffStrength',      // Strong ending
+    'casting.minimumPeople',                // Fewer = better (inverse)
   ],
+  
+  // NEGATIVE: Owner dislikes these → should correlate negatively
   strongNegative: [
     'trends.memeDependent',                 // Relies on meme
     'trends.usesPremadeSound',              // Uses trending sound

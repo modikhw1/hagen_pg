@@ -12,6 +12,136 @@ This document provides exhaustive detail on the in-platform concept viewer—the
 
 ---
 
+## CRITICAL DESIGN CONSTRAINT: View-Only Platform
+
+### Why No Downloads?
+
+The marketplace explicitly requires **view-only access** with no downloads. This is a core architectural decision, not an afterthought.
+
+**Rationale:**
+1. **Concept Protection, Not Video Protection** - We're selling the *idea*, not the video file. The video demonstrates the concept, but downloading it doesn't help—buyers need to create their own version anyway.
+2. **Reduces Piracy Friction** - Downloaded videos can be shared, reuploaded, or used to train competitors. In-platform viewing keeps control.
+3. **Enables Expiry Model** - Signed URLs expire, forcing re-authentication. This creates natural access windows.
+4. **Simplifies Legal Model** - We're licensing viewing rights to understand a concept, not distributing video files.
+
+**Implementation:**
+```typescript
+// NEVER expose direct GCS links
+// ALWAYS use signed URLs with short expiry
+// NEVER include download buttons or right-click save options
+
+const SIGNED_URL_EXPIRY_HOURS = 4; // 4 hours per session
+
+// Why 4 hours?
+// - Long enough to study a concept in one session
+// - Short enough that shared URLs become useless
+// - Forces re-authentication for repeat access
+// - Allows usage analytics per viewing session
+```
+
+### Technical Enforcement
+
+```html
+<!-- Video element with download prevention -->
+<video 
+  controlsList="nodownload"      <!-- Removes download button -->
+  disablePictureInPicture        <!-- Prevents PiP extraction -->
+  oncontextmenu="return false"   <!-- Disables right-click -->
+>
+</video>
+
+<!-- Additional CSS protection -->
+<style>
+video::-webkit-media-controls-enclosure {
+  display: flex;
+}
+/* Hide download button specifically */
+video::-webkit-media-controls-download-button {
+  display: none;
+}
+</style>
+```
+
+**Note**: These are deterrents, not DRM. A determined user with dev tools can still capture video. The goal is to prevent casual sharing, not absolute protection. True DRM (Widevine, FairPlay) is overkill for MVP and adds $10K+ complexity.
+
+### What Happens When URLs Expire?
+
+```typescript
+interface URLExpiryFlow {
+  scenario: 'URL expires during viewing';
+  
+  detection: {
+    // Monitor video playback errors
+    // HTTP 403 = URL expired
+    onError: (e: Event) => {
+      if (e.target.error?.code === 403) {
+        showExpiryModal();
+      }
+    }
+  };
+  
+  userExperience: {
+    modal: 'Your viewing session has expired. Click to continue.';
+    action: 'Refresh URL'; // Re-fetches signed URL, requires auth
+    noLostProgress: true; // Remember playback position
+  };
+}
+```
+
+---
+
+## Subtitle Overlay System
+
+### Where Do Translations Come From?
+
+Subtitles are generated in two phases:
+
+**Phase 1: Source Language (English)**
+- Extracted from Gemini's `script.transcript` during video analysis
+- Already available in `visual_analysis` for all v3 videos
+- Timestamps calculated from scene breakdown
+
+**Phase 2: Target Language (On-Demand)**
+```typescript
+// When a buyer from Indonesia purchases a US-origin concept:
+async function generateSubtitles(
+  conceptId: string, 
+  targetLanguage: 'id' | 'es' | 'pt' | 'hi' | 'ar' // etc
+): Promise<ViewerOverlay[]> {
+  
+  // 1. Get source transcript with timestamps
+  const source = await getSourceTranscript(conceptId);
+  
+  // 2. Translate via Google Translate API (or Gemini)
+  const translated = await translateWithTimestamps(source, targetLanguage);
+  
+  // 3. Store for future viewers from same market
+  await db.viewerOverlays.createMany({
+    data: translated.map(t => ({
+      concept_id: conceptId,
+      language_code: targetLanguage,
+      overlay_type: 'subtitle',
+      content: t.text,
+      timestamp_start: t.start,
+      timestamp_end: t.end
+    }))
+  });
+  
+  return translated;
+}
+
+// Translation happens ONCE per concept×language pair
+// Then cached for all future viewers in that market
+```
+
+**Budget Consideration:**
+- Google Translate API: ~$20 per 1M characters
+- Average skit transcript: ~500 characters
+- Cost per translation: ~$0.01
+- Amortized across all buyers in that market = negligible
+
+---
+
 ## 1. Viewer Architecture
 
 ### Component Structure
