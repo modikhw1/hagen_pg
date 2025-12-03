@@ -12,6 +12,56 @@ The cashback system creates a feedback loop: buyers who produce content based on
 
 ---
 
+## WHY CASHBACK EXISTS
+
+### The Feedback Loop Problem
+
+Without cashback, we only know:
+- ✅ Which concepts were purchased
+- ❌ Which concepts were actually produced
+- ❌ How those productions performed
+
+With cashback, we learn:
+- ✅ Which concepts were purchased
+- ✅ Which concepts were actually produced
+- ✅ View counts, engagement on produced content
+- ✅ Which markets have active creators (not just browsers)
+
+### Business Value of the Data
+
+```typescript
+interface CashbackInsights {
+  // From submissions, we learn:
+  productionRate: number;        // % of purchases that produce content
+  avgTimeToProduction: string;   // How long after purchase?
+  performanceByMarket: Record<string, number>; // Which markets create?
+  conceptSuccessRate: number;    // Concept → viral content?
+}
+```
+
+This data is **more valuable than the 10-15% refund cost**.
+
+### Why 10-15%?
+
+| Rate | Problem |
+|------|--------|
+| 5% | Too low to motivate submission |
+| **10-15%** | Meaningful reward, sustainable cost |
+| 20%+ | Eats too much margin |
+
+```typescript
+const CASHBACK_RANGE = {
+  min: 0.10,  // 10% base rate (always paid if verified)
+  max: 0.15   // 15% for high-performing content
+};
+
+// Example: $10 purchase
+// - Base cashback: $1.00
+// - High performer: $1.50
+```
+
+---
+
 ## 1. Cashback Flow Diagram
 
 ```

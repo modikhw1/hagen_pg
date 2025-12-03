@@ -12,6 +12,46 @@ This document breaks down the full MVP implementation into distinct phases, with
 
 ---
 
+## CRITICAL CONTEXT: Starting Point
+
+### We're NOT Starting from Zero
+
+**Current State (December 2025):**
+
+| Asset | Count | Notes |
+|-------|-------|-------|
+| Videos imported | ~102 | In `analyzed_videos` table |
+| Videos with v3 analysis | ~51 | Full 170+ features |
+| Videos with human ratings | ~50 | In `video_ratings` table |
+| **Training-ready (v3 + rating)** | **~51** | Ready for correlation analysis |
+
+**This means Phase 1 is 25% complete** (51/200 target ratings).
+
+### Budget Constraint: $100-1000
+
+All technology choices must fit within this budget:
+
+| Component | Approach | Cost |
+|-----------|----------|------|
+| Model training | Ridge regression (Python) | $0 |
+| Database | Existing Supabase | $0 (free tier) |
+| Hosting | Existing Vercel | $0 (free tier) |
+| Gemini analysis | Existing quota | ~$0.10/video |
+| Whisper transcription | OpenAI API | ~$0.006/minute |
+| Translation | Gemini (not Google Translate) | ~$0.001/request |
+| Payments | Stripe | 2.9% + $0.30/tx |
+
+**Estimated Phase 1-4 cost: $50-100** (mostly Gemini for new video analysis)
+
+### Solo Rater Model
+
+All 200-500 target ratings come from **ONE PERSON** (the owner). This is intentional:
+- We're learning one person's taste, not crowd consensus
+- Consistent signal, not noisy aggregate
+- Faster iteration (no coordination)
+
+---
+
 ## Phase Summary
 
 ```

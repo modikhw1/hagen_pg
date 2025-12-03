@@ -12,6 +12,62 @@ The rotation logic manages the 72-hour listing windows, ensuring fresh catalog w
 
 ---
 
+## CRITICAL RULE: NO RE-ACTIVATION
+
+**Once a concept is archived, it NEVER comes back.**
+
+This is a deliberate design decision:
+1. **Creates true scarcity** - "If you don't buy now, it's gone forever"
+2. **Prevents catalog bloat** - Fresh concepts only
+3. **Simplifies operations** - No re-listing decisions
+4. **Protects early buyers** - Their purchase stays exclusive
+
+```typescript
+// NEVER do this:
+async function reactivateConcept(conceptId: string) { /* ❌ */ }
+
+// Archived = FINAL state
+type FinalStates = 'archived'; // No path out
+```
+
+---
+
+## WHY 72 HOURS?
+
+### Rationale
+
+| Duration | Problem |
+|----------|--------|
+| 24 hours | Too short for buyers in different timezones |
+| 48 hours | Still tight for decision-making |
+| **72 hours** | Sweet spot: urgency + accessibility |
+| 1 week | Loses urgency, stale feeling |
+
+**72 hours = 3 days** means:
+- Every buyer sees it during at least one browsing session
+- Weekend overlap (Friday listing visible through Sunday)
+- Enough time for "sleep on it" decisions
+- Still creates FOMO
+
+---
+
+## CAP NUMBERS FROM DESIGN
+
+| Cap Type | Value | Rationale |
+|----------|-------|----------|
+| Per-market cap | **3-5** | Prevents saturation in one market |
+| Global cap | **10-15** | Total scarcity across all markets |
+
+These are configurable per-concept, but defaults are:
+```typescript
+const DEFAULT_CAPS = {
+  perMarket: 4,   // Middle of 3-5 range
+  global: 12      // Middle of 10-15 range
+};
+```
+
+---
+
 ## 1. Core Rotation Mechanics
 
 ### 1.1 Lifecycle States

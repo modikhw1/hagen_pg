@@ -12,6 +12,35 @@ The Evergreen Logic determines whether a concept is timeless (evergreen) or tren
 
 ---
 
+## WHY EVERGREEN MATTERS
+
+### Business Rationale
+
+The marketplace has a **72-hour listing window**. This creates urgency, but also raises a question: what if a concept is only viable for 24 hours because the meme/trend it references is dying?
+
+Evergreen classification answers:
+1. **For buyers**: "Will this still work when I produce it next week?"
+2. **For pricing**: Evergreen concepts deserve a premium (they have unlimited shelf life)
+3. **For catalog**: Trend-dependent concepts need faster rotation
+
+### Owner's Known Preferences (From AI_HANDOFF.md)
+
+The owner has explicitly stated **dislikes** that align with "not evergreen":
+
+```typescript
+const ownerDislikes = [
+  'Meme-dependent content (needs context)',     // → memeDependent = true
+  'Trending sounds (dates quickly)',             // → usesPremadeSound = true
+];
+```
+
+This means:
+- Concepts the owner rates highly are **more likely to be evergreen**
+- The trained model will naturally favor evergreen content
+- Evergreen detection aligns with preference learning
+
+---
+
 ## 1. What Makes a Concept Evergreen?
 
 ### Definition

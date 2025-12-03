@@ -12,6 +12,51 @@ The subtitle generation system automatically translates video concepts into buye
 
 ---
 
+## WHY SUBTITLES MATTER FOR CROSS-BORDER
+
+### The Cross-Border Arbitrage Model
+
+The marketplace sells **US-origin concepts to global buyers**. But:
+- Source videos are mostly English
+- Indonesian buyer may not understand English
+- The script/dialogue IS the concept in many skits
+
+**Without subtitles**: Buyer can't fully understand what they're buying.
+
+**With subtitles**: 
+- Buyer sees translation overlay in real-time
+- Script panel shows translated transcript
+- Concept becomes accessible regardless of source language
+
+### Integration with View-Only Model
+
+Subtitles are rendered **client-side as overlays**, not burned into video:
+
+```typescript
+// Client renders subtitles on top of video
+// Buyer sees: Video + Floating subtitle text
+// Buyer CANNOT: Download video with subtitles baked in
+
+// This maintains view-only constraint:
+// - No downloadable file with translations
+// - Subtitle data is separate from video stream
+// - Viewing requires platform access
+```
+
+See [04_CONCEPT_VIEWER.md](./04_CONCEPT_VIEWER.md#critical-design-constraint-view-only-platform) for view-only enforcement details.
+
+### Cost Efficiency
+
+| Approach | Cost | Problem |
+|----------|------|---------|
+| Human translation | $20-50/video | Doesn't scale |
+| Burn-in subtitles | $0 but manual | No language switching |
+| **On-demand translation** | ~$0.01/language | Scales, cached |
+
+We translate ONCE per concept×language, then cache for all future viewers.
+
+---
+
 ## 1. System Architecture
 
 ```
