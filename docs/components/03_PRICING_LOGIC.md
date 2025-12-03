@@ -12,6 +12,61 @@ This document provides exhaustive detail on how concept prices are calculated, i
 
 ---
 
+## 0. Pricing Design Rationale
+
+### Budget Context
+
+From chat discussion: The owner specified a **$100-1000 budget** range for MVP development, which influenced these pricing decisions:
+
+- **Low base price ($5)**: Accessible entry point for emerging markets
+- **Simple multiplier model**: Easy to implement without complex ML pricing
+- **PPP adjustment**: Essential for cross-border marketplace viability
+- **12% cashback premium**: Self-funding feedback loop without external capital
+
+### Why These Specific Values?
+
+| Decision | Value | Rationale |
+|----------|-------|-----------|
+| Base price | $5 | Low enough for any market after PPP adjustment; high enough to feel "worth something" |
+| Virality multiplier | $5 | A "perfect 10" concept costs $55 USD base, which feels premium but not absurd |
+| Cashback premium | 12% | Funds 10-15% cashback with margin for payment processing fees (~3%) |
+| Max agent modifier | ±20% | Enough flexibility for local context without creating arbitrage opportunities |
+| Price floor | $1 | Below this, transaction fees dominate |
+| Price ceiling | $500 | Above this, buyers would expect more than a concept |
+
+### Cashback Premium Math
+
+```
+Revenue needed per transaction to fund 10-15% cashback:
+
+If buyer pays $11.20 (includes 12% premium on $10 base):
+- Premium collected: $1.20
+- Cashback paid: $1.00-$1.50 (10-15% of $10)
+- Net margin: -$0.30 to +$0.20
+
+At scale, high performers (who claim cashback) subsidized by low performers (who don't claim).
+Typical cashback claim rate: 30-50% expected
+Effective cost: 3-7.5% of transaction value
+12% premium covers this with margin.
+```
+
+### Connection to Model Confidence
+
+**Open question**: Should low-confidence predictions affect pricing?
+
+Two approaches considered:
+1. **Confidence discount**: If model confidence < 0.5, reduce virality multiplier by 50%
+   - Pro: Honest pricing when model is uncertain
+   - Con: Penalizes novel content that doesn't match training data
+
+2. **Separate display**: Show virality score AND confidence separately, don't affect price
+   - Pro: Full information for buyer to decide
+   - Con: More cognitive load
+
+**Current decision**: Approach 2 (display both, don't adjust price). Can revisit at 500+ ratings when model is more stable.
+
+---
+
 ## 1. Pricing Formula
 
 ### Complete Formula
@@ -36,7 +91,66 @@ listed_price = ((base_price + (virality_score × virality_multiplier))
 
 ---
 
-## 2. Implementation
+## 2. Purchasing Power Parity (PPP) Reference Data
+
+### Source: World Bank International Comparison Program
+
+PPP values based on **2023 World Bank price level indices**, adjusted for digital goods:
+
+| Country | ISO | PPP Index | Rationale |
+|---------|-----|-----------|-----------|
+| United States | US | 1.00 | Baseline |
+| United Kingdom | GB | 0.92 | High income, strong currency |
+| Germany | DE | 0.88 | High income EU |
+| France | FR | 0.85 | High income EU |
+| Spain | ES | 0.70 | Medium-high income EU |
+| Mexico | MX | 0.40 | Medium income Americas |
+| Brazil | BR | 0.35 | Medium income Americas |
+| Indonesia | ID | 0.25 | Large medium income Asia |
+| India | IN | 0.22 | Large lower-middle income Asia |
+| Philippines | PH | 0.28 | Medium income Asia |
+| Vietnam | VN | 0.24 | Lower-middle income Asia |
+| Thailand | TH | 0.32 | Upper-middle income Asia |
+| Nigeria | NG | 0.18 | Lower-middle income Africa |
+| Egypt | EG | 0.20 | Lower-middle income MENA |
+| Turkey | TR | 0.30 | Upper-middle income |
+| Poland | PL | 0.55 | Medium income EU |
+| Colombia | CO | 0.32 | Medium income Americas |
+| Argentina | AR | 0.28 | Medium income Americas (volatile) |
+
+### PPP Implementation
+
+```typescript
+// Stored in market_contexts table
+const marketPPP: Record<string, number> = {
+  US: 1.00, GB: 0.92, DE: 0.88, FR: 0.85, ES: 0.70,
+  MX: 0.40, BR: 0.35, ID: 0.25, IN: 0.22, PH: 0.28,
+  VN: 0.24, TH: 0.32, NG: 0.18, EG: 0.20, TR: 0.30,
+  PL: 0.55, CO: 0.32, AR: 0.28
+};
+
+// Example: $55 USD concept price in different markets
+// US: $55.00 × 1.00 = $55.00
+// Mexico: $55.00 × 0.40 = $22.00
+// Indonesia: $55.00 × 0.25 = $13.75
+// India: $55.00 × 0.22 = $12.10
+```
+
+### Why Digital-Adjusted PPP?
+
+Standard PPP is based on physical goods baskets. Digital goods have different considerations:
+- No shipping costs
+- Same production cost regardless of buyer location
+- Local willingness to pay for digital content differs from physical goods
+
+We use **0.8× the standard PPP ratio** for emerging markets to account for:
+- Higher digital literacy among target buyers (skews more affluent)
+- Content creators often have some disposable income
+- Digital content valued more than PPP would suggest in these markets
+
+---
+
+## 3. Implementation
 
 ### TypeScript Interface
 
@@ -57,6 +171,7 @@ interface PricingInput {
   viralityScore: number;          // 0-10 from model
   purchasingPowerIndex: number;   // From market_contexts
   agentModifier?: number;         // Optional ±20% adjustment
+  modelConfidence?: number;       // 0-1, displayed but doesn't affect price
   config?: Partial<PricingConfig>;
 }
 
@@ -66,7 +181,10 @@ interface PricingOutput {
   pppAdjusted: number;            // After PPP
   agentAdjusted: number;          // After agent modifier
   listedPrice: number;            // Final price with premium
-  cashbackAmount: number;         // What buyer gets back
+  cashbackAmount: number;         // What buyer gets back (10-15%)
+  cashbackMinimum: number;        // 10% of pre-premium price
+  cashbackMaximum: number;        // 15% of pre-premium price
+  modelConfidence: number;        // Pass-through for display
   breakdown: PricingBreakdown;    // Detailed calculation
 }
 
@@ -93,7 +211,7 @@ const DEFAULT_CONFIG: PricingConfig = {
 
 function calculatePrice(input: PricingInput): PricingOutput {
   const config = { ...DEFAULT_CONFIG, ...input.config };
-  const { viralityScore, purchasingPowerIndex, agentModifier = 0 } = input;
+  const { viralityScore, purchasingPowerIndex, agentModifier = 0, modelConfidence = 0.5 } = input;
   
   const steps: PricingBreakdown['steps'] = [];
   

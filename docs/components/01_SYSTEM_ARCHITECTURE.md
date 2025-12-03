@@ -12,6 +12,59 @@ This document provides exhaustive detail on the system architecture for the Cros
 
 ---
 
+## 0. Origin Context (Critical Background)
+
+### The Original Problem
+
+The owner has **strong subjective preferences** about which TikTok skits are valuable for replication by small businesses (restaurants, cafés, bars). The AI (Gemini) can extract 170+ features but **doesn't know which features align with owner's taste**.
+
+### Key Insight from Development
+
+**Gemini's subjective scores (1-10 ratings) carry signal.** Even though Gemini doesn't "know" the owner's preferences, its scoring reflects underlying characteristics. Running correlation analysis between Gemini's scores and human ratings reveals which AI-evaluated features align with human taste.
+
+### Owner's Known Preferences (From ~51 Rated Videos)
+
+**Likes:**
+- Script-driven comedy (dialogue over sound effects)
+- Self-deprecating humor (employee/brand as butt of joke)
+- Clear "game" with escalation (improv term)
+- Low production value is fine if concept is clever
+- 1-2 person skits (easy to replicate)
+- Evergreen formats (not trend-dependent)
+- Contrast mechanics (expectations vs. reality)
+- Strong payoffs
+
+**Dislikes:**
+- Relies on sound effects as crutch
+- Over-produced/polished (feels like an ad)
+- Meme-dependent (dates quickly)
+- Requires skilled acting
+- Weak or no payoff
+- Industry-locked (only works for specific business type)
+- Attractiveness-dependent content
+- Complex production requirements
+
+### Expected Correlations (To Validate)
+
+Based on known preferences, we expect:
+
+| Feature | Expected Correlation |
+|---------|---------------------|
+| `script.replicability.score` | **Strong positive** |
+| `comedyStyle.contrastMechanism.present` | **Strong positive** |
+| `standalone.worksWithoutContext` | **Strong positive** |
+| `flexibility.swappableCore` | **Positive** |
+| `script.structure.payoffStrength` | **Strong positive** |
+| `trends.memeDependent` | **Strong negative** |
+| `trends.usesPremadeSound` | **Strong negative** |
+| `casting.actingSkillRequired` | **Negative** |
+| `casting.attractivenessDependency` | **Strong negative** |
+| `production.shotComplexity` | **Negative** |
+
+These expected correlations will be validated at the 100-rating milestone.
+
+---
+
 ## 1. High-Level Architecture Diagram
 
 ```
@@ -547,7 +600,289 @@ async function canPurchase(conceptId: string, marketId: string): Promise<boolean
 
 ---
 
-## 8. Scalability Considerations
+## 8. Complete 170+ Feature Schema Reference
+
+The `visual_analysis` JSONB column contains all AI-extracted features. This is the complete enumeration:
+
+### 8.1 VISUAL (13 variables)
+| Variable | Type | Description |
+|----------|------|-------------|
+| `visual.hookStrength` | 1-10 | How compelling the first 3 seconds are |
+| `visual.hookDescription` | string | What makes the opening work or not |
+| `visual.overallQuality` | 1-10 | Production value and visual polish |
+| `visual.mainElements` | string[] | All key visual elements |
+| `visual.colorPalette` | string[] | Dominant colors used |
+| `visual.colorDiversity` | 1-10 | Variety and impact of colors |
+| `visual.transitions` | string[] | Types of transitions between shots |
+| `visual.textOverlays` | string[] | Any text on screen |
+| `visual.visualHierarchy` | string | What draws the eye and when |
+| `visual.compositionQuality` | 1-10 | Shot composition quality |
+| `visual.peopleCount` | number | Number of people visible |
+| `visual.settingType` | enum | indoor/outdoor/mixed/animated |
+| `visual.summary` | string | Comprehensive visual analysis |
+
+### 8.2 AUDIO (10 variables)
+| Variable | Type | Description |
+|----------|------|-------------|
+| `audio.quality` | 1-10 | Audio production quality |
+| `audio.musicType` | string | Background music category or "none" |
+| `audio.musicGenre` | string | Specific genre if applicable |
+| `audio.hasVoiceover` | boolean | Has voiceover? |
+| `audio.voiceoverQuality` | 1-10/null | Voiceover quality if present |
+| `audio.voiceoverTone` | string | Tone and delivery style |
+| `audio.energyLevel` | enum | low/medium/high |
+| `audio.audioEnergy` | 1-10 | Intensity and engagement |
+| `audio.soundEffects` | string[] | All sound effects used |
+| `audio.audioVisualSync` | 1-10 | How well audio matches visuals |
+
+### 8.3 CONTENT (8 variables)
+| Variable | Type | Description |
+|----------|------|-------------|
+| `content.topic` | string | Precise topic/subject matter |
+| `content.style` | string | educational/entertaining/inspirational |
+| `content.format` | string | talking head/montage/tutorial/skit |
+| `content.duration` | number | Duration in seconds |
+| `content.keyMessage` | string | Core message or takeaway |
+| `content.narrativeStructure` | string | How the story unfolds |
+| `content.targetAudience` | string | Who this appeals to |
+| `content.emotionalTone` | string | Dominant emotion conveyed |
+
+### 8.4 SCENES (8 meta + 8 per-scene)
+**Meta variables:**
+| Variable | Type | Description |
+|----------|------|-------------|
+| `scenes.description` | string | Overview of scene analysis |
+| `scenes.sceneBreakdown[]` | array | Array of scene objects |
+| `scenes.totalScenes` | number | Count of distinct scenes/shots |
+| `scenes.editAsPunchline` | boolean | Does an edit itself serve as punchline? |
+| `scenes.editPunchlineExplanation` | string | How edit delivers the joke |
+| `scenes.visualNarrativeSync` | 1-10 | How tightly visuals and story sync |
+| `scenes.misdirectionTechnique` | string | How false expectations are set |
+| `scenes.keyVisualComedyMoment` | string | THE most important visual comedy element |
+
+**Per-scene (scenes.sceneBreakdown[]):**
+| Variable | Type | Description |
+|----------|------|-------------|
+| `sceneNumber` | number | Sequential scene number |
+| `timestamp` | string | Approximate start time |
+| `visualContent` | string | What is SHOWN visually |
+| `audioContent` | string | What is SAID or HEARD |
+| `visualComedyDetail` | string/null | Visual gag description |
+| `narrativeFunction` | enum | hook/setup/development/misdirection/reveal/payoff/callback/tag |
+| `editSignificance` | string | Why this cut/transition matters |
+| `viewerAssumption` | string | What viewer assumes during this scene |
+
+### 8.5 SCRIPT (33 variables)
+**script.* (base - 5 vars):**
+`conceptCore`, `hasScript`, `scriptQuality`, `transcript`, `visualTranscript`
+
+**script.humor.* (7 vars):**
+`isHumorous`, `humorType`, `humorMechanism`, `visualComedyElement`, `comedyTiming`, `absurdismLevel`, `surrealismLevel`
+
+**script.structure.* (10 vars):**
+`hookType`, `hook`, `setup`, `development`, `payoff`, `payoffType`, `payoffStrength`, `hasCallback`, `hasTwist`, `twistDelivery`
+
+**script.emotional.* (4 vars):**
+`primaryEmotion`, `emotionalArc`, `emotionalIntensity`, `relatability`
+
+**script.replicability.* (6 vars):**
+`score`, `template`, `requiredElements`, `variableElements`, `resourceRequirements`, `contextDependency`
+
+**script.originality.* (3 vars):**
+`score`, `similarFormats`, `novelElements`
+
+### 8.6 CASTING (6 variables)
+| Variable | Type | Description |
+|----------|------|-------------|
+| `casting.minimumPeople` | number | Minimum people required |
+| `casting.requiresCustomer` | boolean | Needs customer/stranger? |
+| `casting.attractivenessDependency` | 1-10 | Relies on looks? 1=anyone, 10=only attractive |
+| `casting.personalityDependency` | 1-10 | Needs specific persona? |
+| `casting.actingSkillRequired` | 1-10 | Acting/improv ability needed |
+| `casting.castingNotes` | string | Who could perform this |
+
+### 8.7 PRODUCTION (5 variables)
+| Variable | Type | Description |
+|----------|------|-------------|
+| `production.shotComplexity` | 1-10 | Camera setups needed. 1=single static |
+| `production.editingDependency` | 1-10 | Editing essential? 1=single take works |
+| `production.timeToRecreate` | enum | 15min/30min/1hr/2hr/half-day/full-day |
+| `production.equipmentNeeded` | string[] | Beyond smartphone |
+| `production.productionNotes` | string | Production complexity explanation |
+
+### 8.8 FLEXIBILITY (6 variables)
+| Variable | Type | Description |
+|----------|------|-------------|
+| `flexibility.industryLock` | 1-10 | Locked to specific business? 1=anywhere |
+| `flexibility.industryExamples` | string[] | 3-5 business types that could use |
+| `flexibility.propDependency` | 1-10 | Requires specific props? |
+| `flexibility.swappableCore` | boolean | Can central topic be replaced? |
+| `flexibility.swapExamples` | string | What could be swapped |
+| `flexibility.flexibilityNotes` | string | How adaptable |
+
+### 8.9 COMEDY STYLE (~50 variables)
+**comedyStyle.* (base - 2 vars):**
+`isHumorFocused`, `primaryTechnique`
+
+**Sub-objects (4-5 vars each):**
+- `visualMetaphor.*`: present, element, represents, whyEffective
+- `genreTransplant.*`: present, sourceGenre, mundaneSetting, dramaticElement, whyEffective
+- `powerDynamicAbsurdism.*`: present, dynamicType, violatedNorm, playedStraight, whyEffective
+- `thirdPartyReaction.*`: present, primaryActors, reactingParty, reactionType, whyEffective
+- `hiddenMaliceReveal.*`: present, revealLine, characterAppearance, actualIntent, whyEffective
+- `contrastMechanism.*`: present, element1, element2, contrastType
+- `physicalComedyDetails.*`: present, action, suddenness, timing, wouldWorkWithoutVisual
+- `punchlineStructure.*`: layeredPunchline, punchlineCount, punchlines[], finalTwist, characterSubversion
+- `musicMomentAmplifier.*`: present, momentType, musicStyle, characterEffect, essentialToEffect
+
+### 8.10 TRENDS (9 variables)
+| Variable | Type | Description |
+|----------|------|-------------|
+| `trends.usesPremadeSound` | boolean | Uses TikTok trending audio? |
+| `trends.soundName` | string | Name of sound/trend |
+| `trends.soundEssential` | boolean | Sound essential to joke? |
+| `trends.memeDependent` | boolean | Relies on current meme? |
+| `trends.trendName` | string | Meme/trend name if applicable |
+| `trends.trendLifespan` | enum | dead-meme/dying/current/evergreen-trope/not-trend-dependent |
+| `trends.insideJokeDependency` | 1-10 | Creator's recurring jokes needed? |
+| `trends.culturalSpecificity` | 1-10 | Culture/region-specific? |
+| `trends.trendNotes` | string | Trend/cultural dependencies |
+
+### 8.11 BRAND (5 variables)
+`riskLevel`, `toneMatch[]`, `adultThemes`, `brandExclusions[]`, `brandNotes`
+
+### 8.12 STANDALONE (4 variables)
+`worksWithoutContext`, `worksWithoutProduct`, `requiresSetup`, `standaloneNotes`
+
+### 8.13 EXECUTION (4 variables)
+`physicalComedyLevel`, `timingCriticality`, `improvisationRoom`, `executionNotes`
+
+### 8.14 TECHNICAL (5 variables)
+`pacing`, `editingStyle`, `cutsPerMinute`, `cameraWork`, `lighting`
+
+### 8.15 ENGAGEMENT (4 variables)
+`attentionRetention`, `shareability`, `replayValue`, `scrollStopPower`
+
+### 8.16 METADATA (3 variables)
+`feature_count`, `analyzed_at`, `analysis_model`
+
+### Total Variable Count by Category
+
+| Category | Count |
+|----------|-------|
+| visual | 13 |
+| audio | 10 |
+| content | 8 |
+| scenes (meta) | 8 |
+| scenes.sceneBreakdown[] (per scene) | 8× |
+| script.* total | 35 |
+| casting | 6 |
+| production | 5 |
+| flexibility | 6 |
+| comedyStyle.* total | ~50 |
+| trends | 9 |
+| brand | 5 |
+| standalone | 4 |
+| execution | 4 |
+| technical | 5 |
+| engagement | 4 |
+| metadata | 3 |
+| **TOTAL (excluding per-scene)** | **~170+** |
+
+---
+
+## 9. Schema Version History (Critical)
+
+### v0 - PREDICTION ONLY (NOT deep analysis)
+**Date**: Before Dec 1, 2025 | **Count**: ~22 videos
+
+```json
+{
+  "ai_prediction": { "overall": 0.7, "dimensions": {...}, "reasoning": "..." },
+  "prediction_at": "2025-12-02T...",
+  "prediction_model": "base"
+}
+```
+
+**⚠️ DO NOT USE for training** - contains no actual video analysis.
+
+**Detection**: `visual_analysis.prediction_model` exists BUT `visual_analysis.visual` does NOT exist.
+
+### v1 - BASIC DEEP ANALYSIS
+**Date**: Dec 1, 2025 | **Count**: 3 videos | **Fields**: ~10
+
+Has: `visual`, `audio`, `content`, `script`, `technical`, `engagement`
+
+**Missing**: scenes, casting, production, flexibility, comedyStyle, trends, brand, standalone, execution
+
+**Detection**: Has `visual_analysis.visual` but `Object.keys(visual_analysis).length ≈ 10`
+
+### v2 - EXTENDED ANALYSIS  
+**Date**: Dec 1-2, 2025 | **Count**: ~21 videos | **Fields**: ~17
+
+Added: casting, production, flexibility, trends, brand, standalone, execution
+
+**Missing**: scenes, comedyStyle
+
+**Detection**: Has `visual_analysis.casting` but NO `visual_analysis.comedyStyle`
+
+### v3 - FULL ANALYSIS (CURRENT)
+**Date**: Dec 3, 2025+ | **Count**: ~51+ videos | **Fields**: 170+
+
+Has ALL categories including detailed `scenes.sceneBreakdown[]` and comprehensive `comedyStyle.*`
+
+**Detection**: `visual_analysis.feature_count >= 100` OR `visual_analysis.comedyStyle` exists
+
+### Version Detection Code
+
+```javascript
+function getAnalysisVersion(visual_analysis) {
+  if (!visual_analysis) return null;
+  if (visual_analysis.prediction_model && !visual_analysis.visual) return 'v0';
+  if (!visual_analysis.casting) return 'v1';
+  if (!visual_analysis.comedyStyle) return 'v2';
+  return 'v3';
+}
+
+// For training, ONLY use v3:
+const trainableVideos = videos.filter(v => getAnalysisVersion(v.visual_analysis) === 'v3');
+```
+
+---
+
+## 10. Correlation Analysis at Milestones
+
+The model training approach runs correlation analysis at specific rating count milestones:
+
+### At 100 Ratings
+- Run correlation analysis only (no model training)
+- Identify top 20 positive and negative correlations
+- **Validate against expected correlations** (see section 0)
+- Create `feature_importance_snapshot`
+- Flag any surprises for investigation
+
+### At 200 Ratings
+- Train first model (Ridge regression)
+- Target: MAE < 0.20
+- Store as v1.0
+- Compare correlations to 100-rating snapshot
+- Activate if metrics acceptable
+
+### At 300 Ratings
+- Retrain model
+- Compare to v1.0
+- Consider feature pruning (remove |correlation| < 0.1)
+- Update snapshot
+
+### At 500 Ratings
+- Try Random Forest model
+- Compare Ridge vs RF
+- Select best performer
+- Consider multi-output for dimension prediction (hook, pacing, payoff separately)
+
+---
+
+## 11. Scalability Considerations
 
 ### Current Scale (MVP)
 ```

@@ -12,6 +12,30 @@ This document provides exhaustive detail on every database table, column, relati
 
 ---
 
+## 0. Schema Evolution Context
+
+### Why Schema Versions Matter
+
+The `visual_analysis` JSONB field has evolved through 4 versions. **Only v3 should be used for model training.** Using v0-v2 data will produce incorrect correlations.
+
+| Version | Date | Videos | Features | Usable for Training? |
+|---------|------|--------|----------|---------------------|
+| v0 | Pre-Dec 1 | ~22 | 3 | ❌ NO - prediction only, no analysis |
+| v1 | Dec 1 | 3 | ~10 | ❌ NO - missing key categories |
+| v2 | Dec 1-2 | ~21 | ~17 | ⚠️ Limited - missing comedyStyle |
+| v3 | Dec 3+ | ~51+ | 170+ | ✅ YES - full analysis |
+
+### Legacy Column Warning
+
+The `analyzed_videos` table has three legacy columns that are **EMPTY** and should **NEVER** be used:
+- `user_ratings` - EMPTY (use `video_ratings` table)
+- `user_tags` - EMPTY (use `video_ratings.tags`)
+- `user_notes` - EMPTY (use `video_ratings.notes`)
+
+These exist from an earlier design where ratings were stored directly on videos. The current design uses a separate `video_ratings` table to support multiple raters.
+
+---
+
 ## 1. Existing Tables (From Current System)
 
 ### 1.1 `analyzed_videos`
@@ -67,13 +91,326 @@ CREATE INDEX idx_analyzed_videos_embedding ON analyzed_videos
     "hashtags": ["restaurant", "serverlife", "pov"]
   },
   "gcs_uri": "gs://hagen-video-analysis/videos/695e6525-c41d-4152-96b4-931a3d75da29.mp4",
-  "visual_analysis": { /* 170+ features - see section 3 */ },
+  "visual_analysis": { /* 170+ features - see section 1.3 */ },
   "created_at": "2025-12-03T10:00:00Z",
   "analyzed_at": "2025-12-03T12:59:40Z"
 }
 ```
 
-### 1.2 `video_ratings`
+### 1.3 Complete `visual_analysis` Example (v3)
+
+This is a **real example** from the database showing all 170+ features:
+
+```json
+{
+  "feature_count": 172,
+  "analyzed_at": "2025-12-03T12:59:40.123Z",
+  "analysis_model": "gemini-2.0-flash-vertex",
+  
+  "visual": {
+    "hookStrength": 8,
+    "hookDescription": "Opens with employee walking into kitchen with tray of food - immediately signals relatable work situation",
+    "overallQuality": 6,
+    "mainElements": ["restaurant kitchen", "server uniform", "food tray", "chef in background"],
+    "colorPalette": ["stainless steel", "white apron", "warm food tones"],
+    "colorDiversity": 4,
+    "transitions": ["cut on action", "single take middle section"],
+    "textOverlays": ["POV: you have to tell the kitchen you messed up"],
+    "visualHierarchy": "Focus on server's facial expression, kitchen chaos in background",
+    "compositionQuality": 7,
+    "peopleCount": 3,
+    "settingType": "indoor",
+    "summary": "Simple restaurant setting, authentic feel, no expensive production"
+  },
+  
+  "audio": {
+    "quality": 7,
+    "musicType": "none",
+    "musicGenre": null,
+    "hasVoiceover": false,
+    "voiceoverQuality": null,
+    "voiceoverTone": null,
+    "energyLevel": "medium",
+    "audioEnergy": 6,
+    "soundEffects": ["kitchen ambiance", "plates clattering"],
+    "audioVisualSync": 8
+  },
+  
+  "content": {
+    "topic": "restaurant server mistake confession",
+    "style": "entertaining",
+    "format": "skit",
+    "duration": 18,
+    "keyMessage": "Workplace anxiety is universal and funny when played straight",
+    "narrativeStructure": "setup → delay → confession → reaction",
+    "targetAudience": "service industry workers, young adults",
+    "emotionalTone": "anxious-comedic"
+  },
+  
+  "scenes": {
+    "description": "4-scene structure with escalating dread",
+    "totalScenes": 4,
+    "editAsPunchline": false,
+    "editPunchlineExplanation": null,
+    "visualNarrativeSync": 8,
+    "misdirectionTechnique": "Server appears confident, delay reveals dread",
+    "keyVisualComedyMoment": "Chef's reaction face when hearing the mistake",
+    "sceneBreakdown": [
+      {
+        "sceneNumber": 1,
+        "timestamp": "0:00-0:03",
+        "visualContent": "Server walking toward kitchen with tray",
+        "audioContent": "Kitchen ambient noise",
+        "visualComedyDetail": null,
+        "narrativeFunction": "hook",
+        "editSignificance": "Establishes setting immediately",
+        "viewerAssumption": "Normal restaurant scene"
+      },
+      {
+        "sceneNumber": 2,
+        "timestamp": "0:03-0:08",
+        "visualContent": "Server standing at kitchen window, hesitating",
+        "audioContent": "Slight pause in kitchen noise",
+        "visualComedyDetail": "Visible sweat, exaggerated hesitation",
+        "narrativeFunction": "setup",
+        "editSignificance": "Builds tension through delay",
+        "viewerAssumption": "Something is wrong"
+      },
+      {
+        "sceneNumber": 3,
+        "timestamp": "0:08-0:14",
+        "visualContent": "Server mumbles confession to chef",
+        "audioContent": "Mumbled words, then clear 'I gave table 5 the wrong order'",
+        "visualComedyDetail": "Server wincing during confession",
+        "narrativeFunction": "reveal",
+        "editSignificance": "Payoff moment",
+        "viewerAssumption": "Chef will be angry"
+      },
+      {
+        "sceneNumber": 4,
+        "timestamp": "0:14-0:18",
+        "visualContent": "Chef's deadpan stare, then returns to cooking",
+        "audioContent": "Silence, then resumed cooking sounds",
+        "visualComedyDetail": "Anti-climactic reaction subverts expectation",
+        "narrativeFunction": "payoff",
+        "editSignificance": "Subverts expected blowup",
+        "viewerAssumption": "Viewer laughs at anticlimax"
+      }
+    ]
+  },
+  
+  "script": {
+    "conceptCore": "Employee dreads confessing mistake to authority figure, confession is anticlimactic",
+    "hasScript": true,
+    "scriptQuality": 7,
+    "transcript": "POV: you have to tell the kitchen you messed up... *walks slowly* *hesitates* 'Hey chef... I uh... I gave table 5 the wrong order' *chef stares* *returns to cooking*",
+    "visualTranscript": "WIDE: Server approaches kitchen. MEDIUM: Server hesitates at window. CLOSE: Mumbled confession. REACTION: Chef's deadpan.",
+    
+    "humor": {
+      "isHumorous": true,
+      "humorType": "contrast",
+      "humorMechanism": "Buildup of dread vs anticlimactic resolution",
+      "visualComedyElement": "Exaggerated hesitation and wincing",
+      "comedyTiming": 8,
+      "absurdismLevel": 3,
+      "surrealismLevel": 1
+    },
+    
+    "structure": {
+      "hookType": "relatable-situation",
+      "hook": "Text overlay primes viewer for workplace anxiety scenario",
+      "setup": "Server's visible dread walking to kitchen",
+      "development": "Extended hesitation builds tension",
+      "payoff": "Chef's non-reaction subverts expected blowup",
+      "payoffType": "visual",
+      "payoffStrength": 7,
+      "hasCallback": false,
+      "hasTwist": true,
+      "twistDelivery": "visual"
+    },
+    
+    "emotional": {
+      "primaryEmotion": "anxiety-then-relief",
+      "emotionalArc": "dread → confession → anticlimax → humor",
+      "emotionalIntensity": 6,
+      "relatability": 9
+    },
+    
+    "replicability": {
+      "score": 9,
+      "template": "[Employee] must confess [minor mistake] to [authority], buildup dread, anticlimactic response",
+      "requiredElements": ["authority figure", "employee", "workplace setting"],
+      "variableElements": ["specific mistake", "type of workplace", "authority's specific reaction"],
+      "resourceRequirements": "low",
+      "contextDependency": 2
+    },
+    
+    "originality": {
+      "score": 6,
+      "similarFormats": ["confession POV", "workplace anxiety", "subverted expectation"],
+      "novelElements": ["specific restaurant framing", "chef's deadpan non-reaction"]
+    }
+  },
+  
+  "casting": {
+    "minimumPeople": 2,
+    "requiresCustomer": false,
+    "attractivenessDependency": 2,
+    "personalityDependency": 3,
+    "actingSkillRequired": 4,
+    "castingNotes": "Anyone who can look anxious and deliver mumbled line works"
+  },
+  
+  "production": {
+    "shotComplexity": 3,
+    "editingDependency": 3,
+    "timeToRecreate": "15min",
+    "equipmentNeeded": [],
+    "productionNotes": "Single smartphone, real or fake kitchen works"
+  },
+  
+  "flexibility": {
+    "industryLock": 2,
+    "industryExamples": ["restaurant", "retail", "office", "hospital", "school"],
+    "propDependency": 3,
+    "swappableCore": true,
+    "swapExamples": "Could be 'telling boss about client complaint' or 'telling teacher about lost homework'",
+    "flexibilityNotes": "Core mechanic (dread → confession → anticlimax) works anywhere"
+  },
+  
+  "comedyStyle": {
+    "isHumorFocused": true,
+    "primaryTechnique": "verbal-subversion",
+    
+    "visualMetaphor": {
+      "present": false,
+      "element": null,
+      "represents": null,
+      "whyEffective": null
+    },
+    
+    "genreTransplant": {
+      "present": false,
+      "sourceGenre": null,
+      "mundaneSetting": null,
+      "dramaticElement": null,
+      "whyEffective": null
+    },
+    
+    "powerDynamicAbsurdism": {
+      "present": true,
+      "dynamicType": "authority-subordinate",
+      "violatedNorm": "Expected anger/punishment from authority",
+      "playedStraight": true,
+      "whyEffective": "Subverts workplace fear trope"
+    },
+    
+    "thirdPartyReaction": {
+      "present": false,
+      "primaryActors": null,
+      "reactingParty": null,
+      "reactionType": null,
+      "whyEffective": null
+    },
+    
+    "hiddenMaliceReveal": {
+      "present": false,
+      "revealLine": null,
+      "characterAppearance": null,
+      "actualIntent": null,
+      "whyEffective": null
+    },
+    
+    "contrastMechanism": {
+      "present": true,
+      "element1": "Server's extreme anxiety and dread",
+      "element2": "Chef's complete indifference",
+      "contrastType": "expectation-reality"
+    },
+    
+    "physicalComedyDetails": {
+      "present": true,
+      "action": "Exaggerated hesitation and wincing",
+      "suddenness": false,
+      "timing": "Slow buildup throughout",
+      "wouldWorkWithoutVisual": false
+    },
+    
+    "punchlineStructure": {
+      "layeredPunchline": false,
+      "punchlineCount": 1,
+      "punchlines": [
+        {
+          "type": "visual",
+          "description": "Chef's non-reaction",
+          "whatItReveals": "The dread was unnecessary"
+        }
+      ],
+      "finalTwist": "Authority doesn't care as much as employee feared",
+      "characterSubversion": null
+    },
+    
+    "musicMomentAmplifier": {
+      "present": false,
+      "momentType": null,
+      "musicStyle": null,
+      "characterEffect": null,
+      "essentialToEffect": false
+    }
+  },
+  
+  "trends": {
+    "usesPremadeSound": false,
+    "soundName": null,
+    "soundEssential": false,
+    "memeDependent": false,
+    "trendName": null,
+    "trendLifespan": "evergreen-trope",
+    "insideJokeDependency": 1,
+    "culturalSpecificity": 2,
+    "trendNotes": "Workplace anxiety is universal, not trend-dependent"
+  },
+  
+  "brand": {
+    "riskLevel": 2,
+    "toneMatch": ["playful", "relatable", "self-deprecating"],
+    "adultThemes": false,
+    "brandExclusions": [],
+    "brandNotes": "Safe for all restaurant brands, shows humanity"
+  },
+  
+  "standalone": {
+    "worksWithoutContext": 9,
+    "worksWithoutProduct": true,
+    "requiresSetup": false,
+    "standaloneNotes": "Anyone who has had a job understands immediately"
+  },
+  
+  "execution": {
+    "physicalComedyLevel": 4,
+    "timingCriticality": 7,
+    "improvisationRoom": 5,
+    "executionNotes": "Timing of hesitation is key, but has wiggle room"
+  },
+  
+  "technical": {
+    "pacing": 8,
+    "editingStyle": "minimal cuts",
+    "cutsPerMinute": 13,
+    "cameraWork": "static or simple follow",
+    "lighting": "natural/practical restaurant lighting"
+  },
+  
+  "engagement": {
+    "attentionRetention": 8,
+    "shareability": 7,
+    "replayValue": 5,
+    "scrollStopPower": 7
+  }
+}
+```
+
+### 1.4 `video_ratings`
 
 Human ratings (ground truth for model training).
 
