@@ -7,6 +7,59 @@
 
 ---
 
+## CRITICAL CONTEXT FOR AI AGENTS
+
+### What This Repository Is
+
+This repository (`hagen_pg`) contains the **planning and data documentation** for a marketplace MVP. The actual codebase lives in a separate repository (`hagen`). This repository serves as:
+
+1. **Ground Truth Documentation** - Complete specifications for the marketplace
+2. **Training Data Context** - Understanding the 170+ features and rating system
+3. **Integration Reference** - How to fetch and use this information from `hagen`
+
+### Current State (December 2025)
+
+| Asset | Status |
+|-------|--------|
+| Training-ready videos (v3 + rating) | 51 |
+| Target for first model | 200 |
+| Budget constraint | $100-1000 |
+| Rater type | Solo (owner only) |
+| Phase | Data collection (Phase 1, 25% complete) |
+
+### Owner's Known Preferences
+
+The preference model learns from ONE person's ratings. Their documented tastes:
+
+**Likes:**
+- Script-driven comedy with strong concept core
+- Self-deprecating humor (business makes fun of itself)
+- Low production value is fine ("authentic" look)
+- One person can execute (solopreneur-friendly)
+- Industry-agnostic formats (swappable premise)
+- Strong payoff that subverts expectation
+
+**Dislikes:**
+- Meme-dependent content (needs context)
+- Trending sounds (dates quickly)
+- High production requirements
+- Attractive-person dependent (relies on looks)
+- Complex multi-person choreography
+
+### Key Design Decisions Already Made
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| View-only | No downloads | Control distribution, enable overlays |
+| 72-hour windows | Rotation | Creates urgency, ensures freshness |
+| No re-activation | Archived = final | True scarcity |
+| 3-5 per market cap | Prevents saturation | Market-specific limits |
+| 10-15 global cap | Total scarcity | Cross-market limits |
+| 10-15% cashback | Feedback loop | Incentivizes production data |
+| Solo rater | Owner only | Learn one taste, not crowd |
+
+---
+
 ## Table of Contents
 
 1. [System Overview](#1-system-overview)
