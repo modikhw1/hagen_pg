@@ -20,7 +20,7 @@ export default function Home() {
           We watch hundreds of videos and pick the ones that fit your business—so you don&apos;t have to.
         </Text>
 
-        <Button component={Link} href="/dashboard" size="lg" radius="md">
+        <Button component={Link} href="/start" size="lg" radius="md">
           Get Started
         </Button>
 
