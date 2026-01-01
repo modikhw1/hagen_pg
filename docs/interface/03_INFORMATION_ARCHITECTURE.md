@@ -1,26 +1,58 @@
 # Information Architecture - letrend
 
 > **Purpose**: Define what information appears where and why
-> **Status**: Draft - Awaiting Owner Input
-> **Created**: January 1, 2026
+> **Status**: Revised based on owner input
+> **Updated**: January 1, 2026
 
 ---
 
-## Core Principle: Progressive Disclosure
+## Core Principle: Recommendation Over Browsing
 
-Information is revealed progressively based on user commitment level:
+letrend is **not a marketplace you browse**—it's a recommendation service that shows you what fits your business.
+
+The mental model:
+> "We watched hundreds of videos. Here's what we picked for cafés like yours."
+
+NOT:
+> "Browse 45 concepts, filter by industry..."
+
+---
+
+## Progressive Disclosure (Revised)
+
+Information revealed based on commitment level:
 
 ```
-VISITOR                    EVALUATOR                   BUYER                      PRODUCER
-(browsing)                 (considering)               (purchased)                (claiming)
-    │                          │                           │                          │
-    ▼                          ▼                           ▼                          ▼
-• Thumbnails               • Quick stats              • Full video               • Submit form
-• Headlines                • Preview                  • Transcript               • Status tracking
-• Scores                   • "Why it works"           • Structure                • Performance data
-• Prices                   • Requirements             • Checklist
-• Urgency                  • What you get             • All tabs
+NEW VISITOR              PROFILED USER            BUYER                    PRODUCER
+(no profile)             (completed chat)         (purchased)              (filming)
+    │                         │                       │                        │
+    ▼                         ▼                       ▼                        ▼
+• Value prop              • Match %                • Full video             • Submit link
+• "Get Started"           • Trend indicator        • Script                 • Deadline
+• Sample cards            • Price                  • Plain-language guide
+  (limited info)          • Origin country         • Checklist
+                          • Headline               • "What you'll need"
+                          • Difficulty level
 ```
+
+**Key shift**: Users don't see meaningful recommendations until they have a profile.
+
+---
+
+## User Profile: Foundation of Everything
+
+Before showing recommendations, we need to know:
+
+| Data Point | How Collected | Why Needed |
+|------------|---------------|------------|
+| Business type | AI chat | Match to industry-appropriate concepts |
+| Team size | AI chat | Filter by people required |
+| Comfort level | AI chat + inference | Show appropriate difficulty |
+| Tone preference | AI chat + social analysis | Match humor style |
+| Content history | AI chat | Calibrate expectations |
+| Location/market | Auto-detect | PPP pricing, language |
+
+**Collection method**: Conversational AI chat (like the brand-profile system in hagen), not forms.
 
 ---
 
@@ -28,384 +60,295 @@ VISITOR                    EVALUATOR                   BUYER                    
 
 ### 1. Landing Page (`/`)
 
-**Goal**: Convert visitors to browsers/registrations
+**Goal**: Get visitors into the profile chat
 
-| Section | Information | Why Here |
-|---------|-------------|----------|
-| Hero | Value prop, primary CTA | First impression, immediate clarity |
-| How It Works | 4-step process | Reduce confusion, build understanding |
-| Featured Concepts | 4-6 concept cards | Social proof, demonstrate product |
-| Industries | Industry badges | Self-identification, relevance |
-| Trust Signals | Stats, testimonials | Overcome skepticism |
+| Section | Information | Why |
+|---------|-------------|-----|
+| Hero | "Proven ideas for your business's social media" | Immediate clarity |
+| Value prop | Human-curated, not algorithmic | Differentiation |
+| Sample cards | 2-3 concept previews (headline + difficulty only) | Demonstrate product |
+| CTA | "Let's find concepts for your café" | Start profile chat |
 
-**Information NOT shown:**
-- Full concept details (→ browse)
-- Pricing tables (→ individual concepts)
-- Staff features (→ staff dashboard)
+**What's NOT shown:**
+- Full concept cards with pricing (→ need profile first)
+- Filters or browse functionality
+- Video previews
+
+**Tone**: Welcoming, not salesy. Speak to someone figuring out social media.
 
 ---
 
-### 2. Browse Page (`/concepts`)
+### 2. Onboarding Chat (`/start` or modal)
 
-**Goal**: Help users find relevant concepts quickly
+**Goal**: Build user profile through conversation
+
+| Phase | Information Gathered | Tone |
+|-------|---------------------|------|
+| Intro | Business type (café, bar, restaurant, barber...) | Friendly, curious |
+| Context | Team size, who films content | Practical |
+| Comfort | Experience level, concerns | Reassuring |
+| Tone | What kind of content feels right | Exploratory |
+| Optional | Link socials for inference | "If you want, we can look at..." |
+
+**Output**: Profile that powers recommendations
+
+**What user sees at end**: "Great! Based on what you told me, here are concepts that should work for your café."
+
+---
+
+### 3. Recommendations Page (`/for-you`)
+
+**Goal**: Show curated concepts that match their profile
+
+This replaces the traditional "browse" page.
 
 | Element | Information | Why |
 |---------|-------------|-----|
-| Filter bar | Industry, people, time, price, toggles | Self-service discovery |
-| Result count | "X concepts match" | Feedback, expectation setting |
-| Concept cards | Thumbnail, headline, score, stats, price, urgency | Quick evaluation |
-| Sort | Ending Soon (default), Price, Score | Different user priorities |
+| Personalized header | "Concepts for [Business Name]'s café" | Feels personal |
+| Concept cards | Headline, match %, trend, difficulty, price | Quick evaluation |
+| Profile link | "Update your preferences" | Control |
+| Secondary filters | (Collapsed) Fine-tune if needed | Power users |
 
-**Card Information Hierarchy:**
+**Card Information Hierarchy (Revised):**
 ```
 ┌─────────────────────────────────────────┐
-│ 1. THUMBNAIL (visual hook)              │
-│ 2. URGENCY BADGE (scarcity)             │
-│ 3. HEADLINE (what is it)                │
-│ 4. QUICK STATS (can I do this?)         │
-│ 5. PRICE (what does it cost)            │
+│ 🇺🇸 [Origin flag]                       │
+│                                         │
+│ "Employee dreads telling kitchen        │
+│  about a mistake—gets calm response"    │ ← Headline
+│                                         │
+│ 🔥🔥🔥○○ Trending                        │ ← Trend lifecycle
+│                                         │
+│ 94% match for your café                 │ ← Match score (primary)
+│                                         │
+│ 👥 1-2  ⏱ 15 min  Easy                  │ ← Difficulty signals
+│                                         │
+│ $24                                     │ ← Price
 └─────────────────────────────────────────┘
 ```
 
 **Why this order:**
-1. Visual grabs attention
-2. Urgency creates action pressure
-3. Headline qualifies relevance
-4. Stats filter out impossible concepts
-5. Price is final decision factor
+1. Origin flag adds "discovery" value (concepts from other markets)
+2. Headline explains the concept
+3. Trend shows timeliness
+4. Match % is primary decision factor
+5. Difficulty answers "Can I do this?"
+6. Price is final factor
 
-**Information NOT shown on cards:**
-- Full description (→ detail page)
-- Transcript (→ purchased)
-- Why it works (→ detail page)
+**NO thumbnail/video** - the concept is hidden until purchase.
 
 ---
 
-### 3. Concept Detail Page (`/concepts/[id]`)
+### 4. Concept Detail Page (`/concept/[id]`)
 
-**Goal**: Provide enough info to make purchase decision
+**Goal**: Provide enough confidence to purchase without revealing the concept
 
 | Section | Information | Why |
 |---------|-------------|-----|
-| Video Preview | Limited preview (decision needed) | Show quality without giving away concept |
-| Purchase Panel | Price, urgency, stats, CTA | Clear path to purchase |
-| Quick Stats | People, time, equipment, skill, flexibility, evergreen | "Can I actually do this?" |
-| Why It Works | 2-3 sentences | Value justification |
-| Industry Tags | Which businesses this fits | Self-qualification |
-| What You Get | Bullet list | Set expectations |
+| Headline | The concept in one line | What they're buying |
+| Match breakdown | "94% match: fits your tone, 1-person team, low effort" | Justify recommendation |
+| Origin | Country flag, "Seen 847 times in 12 languages" | Social proof |
+| Trend status | Visual lifecycle + explanation | Timeliness |
+| Difficulty | Plain language: "Easy to film" | Confidence |
+| What you'll need | People, time, equipment (plain list) | Practical |
+| Price | $24 | Final decision |
+| Footnote | "Film your version → get some back" | Subtle cashback |
 
-**Information revealed vs. hidden:**
+**Information SHOWN (Pre-Purchase):**
+- Headline (concept_core)
+- Match % with explanation
+- Origin country and spread data
+- Trend lifecycle
+- Difficulty level (Easy/Medium/Needs practice)
+- What you'll need (plain list)
+- Price
 
-| SHOWN (Pre-Purchase) | HIDDEN (Post-Purchase) |
-|---------------------|----------------------|
-| Concept headline | Full transcript |
-| Quick stats (people, time, etc.) | Scene-by-scene breakdown |
-| Why it works (summary) | Visual transcript |
-| Industry examples | Detailed production notes |
-| Virality score | Casting notes |
-| Limited video preview | Full video |
-| Price | N/A |
+**Information HIDDEN (Post-Purchase):**
+- Video
+- Script/transcript
+- Scene breakdown
+- Detailed production notes
+- Specific how-to guidance
 
-**Rationale for hiding:**
-- **Transcript**: The actual script is the product
-- **Scene breakdown**: Implementation details
-- **Full video**: Can be replicated without paying
-- **Detailed notes**: Deep value reserved for buyers
+**Rationale**: The concept itself is the product. Showing it pre-purchase eliminates need to buy.
 
 ---
 
-### 4. Checkout Page (`/checkout/[id]`)
+### 5. Checkout Page (`/checkout/[id]`)
 
-**Goal**: Complete purchase with confidence
+**Goal**: Simple, confident purchase
 
 | Section | Information | Why |
 |---------|-------------|-----|
-| Order Summary | Thumbnail, headline, key stats | Confirm what they're buying |
-| Price Breakdown | Base + cashback premium = total | Transparency, explain cashback |
-| Credits | Available balance, toggle | Incentivize return purchases |
-| Payment | Card/wallet inputs | Transaction |
-| Trust Signals | Security, instant access, cashback | Reduce friction |
+| Summary | Headline, match %, difficulty | Confirm choice |
+| Price | $24 (PPP-adjusted) | Clear total |
+| Credits | If available, auto-applied | Reward loyalty |
+| Payment | Card/wallet | Transaction |
+| Footnote | "Film it, link it, get some back" | Subtle cashback |
 
-**Information NOT shown:**
-- Detailed concept info (→ already saw on detail page)
-- Terms and conditions (linked, not inline)
-
-**Price Breakdown Transparency:**
-```
-Concept access                    $10.71
-Cashback premium (refundable)      $1.29
-──────────────────────────────────────────
-Total                             $12.00
-
-💰 Produce your version → get $1.44 back
-```
-
-Why show this:
-- Explains higher price
-- Positions cashback as opportunity, not gimmick
-- Sets expectation for post-purchase flow
-
----
-
-### 5. Concept Viewer (`/viewer/[id]`)
-
-**Goal**: Provide everything needed to replicate the concept
-
-**This is the core product experience.**
-
-| Section | Information | Why |
-|---------|-------------|-----|
-| Video Player | Full video, subtitles, scene markers | Source material |
-| Script Tab | Concept core, structure, transcripts | The "script" |
-| Production Tab | Time, equipment, complexity | Logistics |
-| Casting Tab | People, skills, notes | Casting requirements |
-| Adapt Tab | Industry examples, swappable elements | Customization |
-| Checklist | Interactive production checklist | Actionable guidance |
-| Cashback CTA | Deadline, amount, submit link | Drive next action |
-
-**Tab Content Details:**
-
-**Script Tab:**
-| Element | Source | Purpose |
-|---------|--------|---------|
-| Concept Core | script.conceptCore | One-line summary |
-| Hook | script.structure.hook | Opening seconds |
-| Setup | script.structure.setup | Expectation established |
-| Development | script.structure.development | Middle section |
-| Payoff | script.structure.payoff | Resolution |
-| Transcript | script.transcript | What is said |
-| Visual Transcript | script.visualTranscript | Scene-by-scene with actions |
-
-**Production Tab:**
-| Element | Source | Purpose |
-|---------|--------|---------|
-| Time to Recreate | production.timeToRecreate | Planning |
-| Equipment | production.equipmentNeeded | Shopping list |
-| Shot Complexity | production.shotComplexity (1-10) | Skill assessment |
-| Editing Dependency | production.editingDependency (1-10) | Post-production needs |
-| Notes | production.productionNotes | Context |
-
-**Casting Tab:**
-| Element | Source | Purpose |
-|---------|--------|---------|
-| Minimum People | casting.minimumPeople | Crew planning |
-| Requires Customer | casting.requiresCustomer | Special casting |
-| Acting Skill | casting.actingSkillRequired (1-10) | Talent needs |
-| Personality Dependency | casting.personalityDependency (1-10) | Persona requirements |
-| Attractiveness Dependency | casting.attractivenessDependency (1-10) | Honest assessment |
-| Notes | casting.castingNotes | Guidance |
-
-**Adapt Tab:**
-| Element | Source | Purpose |
-|---------|--------|---------|
-| Industry Examples | flexibility.industryExamples | Inspiration |
-| Industry Lock | flexibility.industryLock (1-10) | Flexibility assessment |
-| Swappable Core | flexibility.swappableCore | Can change premise? |
-| Swap Examples | flexibility.swapExamples | How to adapt |
-| Notes | flexibility.flexibilityNotes | Guidance |
-
----
-
-### 6. My Purchases (`/purchases`)
-
-**Goal**: Access owned concepts, manage cashback
-
-| Section | Information | Why |
-|---------|-------------|-----|
-| Credits Bar | Balance, use CTA | Incentivize next purchase |
-| Active Purchases | Concepts with cashback available | Priority action items |
-| Pending | Submissions awaiting verification | Status awareness |
-| Claimed | Successful cashbacks with amount | Satisfaction, tracking |
-| Expired | Past deadline, no cashback | Complete history |
-
-**Card Information by Status:**
-
-| Status | Shown | Actions |
-|--------|-------|---------|
-| Active | Headline, purchase date, deadline countdown | View, Claim |
-| Pending | Headline, submission date | View, Check Status |
-| Claimed | Headline, amount earned, video performance | View |
-| Expired | Headline, "Expired" badge | View |
-
----
-
-### 7. Cashback Submit (`/cashback/submit/[tx-id]`)
-
-**Goal**: Submit proof of production
-
-| Section | Information | Why |
-|---------|-------------|-----|
-| Concept Reminder | Thumbnail, headline, amount available | Context |
-| Form | Platform selector, URL input | Submission |
-| Requirements | What qualifies, timeline | Set expectations |
-| Bonus Info | Higher engagement = higher cashback | Incentivize quality |
-
----
-
-## Data Visibility Matrix
-
-Which data is visible at which stage:
-
-| Data Field | Browse Card | Detail Page | Viewer | Staff |
-|------------|-------------|-------------|--------|-------|
-| thumbnail | ✓ | ✓ | ✓ | ✓ |
-| concept_core | ✓ (headline) | ✓ | ✓ | ✓ |
-| virality_score | ✓ | ✓ | ✓ | ✓ |
-| price | ✓ | ✓ | N/A | ✓ |
-| time_remaining | ✓ | ✓ | N/A | ✓ |
-| market_availability | — | ✓ (logged in) | N/A | ✓ |
-| casting.minimumPeople | ✓ | ✓ | ✓ | ✓ |
-| production.timeToRecreate | ✓ | ✓ | ✓ | ✓ |
-| production.equipmentNeeded | — | Summary | ✓ | ✓ |
-| script.transcript | — | — | ✓ | ✓ |
-| script.visualTranscript | — | — | ✓ | ✓ |
-| script.structure.* | — | — | ✓ | ✓ |
-| casting.actingSkillRequired | — | ✓ (summary) | ✓ | ✓ |
-| flexibility.industryExamples | — | ✓ | ✓ | ✓ |
-| full_video | — | Preview only | ✓ | ✓ |
-| subtitles | — | — | ✓ | ✓ |
-| human_rating.* | — | — | — | ✓ |
-| notes (staff) | — | — | — | ✓ |
-
----
-
-## URL Structure
+**Simplified from original**: No cashback line-item breakdown. Just the price.
 
 ```
-/                               Landing page
-/concepts                       Browse all
-/concepts?industry=restaurant   Browse filtered
-/concepts/[uuid]                Concept detail
-/checkout/[uuid]                Purchase flow
-/checkout/[uuid]/success        Purchase confirmation
-/viewer/[uuid]                  Concept viewer
-/purchases                      My purchases
-/cashback/submit/[tx-uuid]      Submit cashback
-/cashback/status/[tx-uuid]      Cashback status
-/account                        Account settings
-/account/credits                Credit history
-
-/staff                          Staff dashboard
-/staff/rate                     Rating queue
-/staff/cashback                 Verification queue
-/staff/listings                 Listing management
-/staff/analytics                Analytics
-
-/login                          Login page
-/register                       Registration
-/forgot-password                Password reset
+┌─────────────────────────────────────────┐
+│ "Employee dreads telling kitchen..."    │
+│ 94% match • Easy • 1-2 people           │
+│                                         │
+│ $24                                     │
+│                                         │
+│ [Pay $24]                               │
+│                                         │
+│ Film your version → get some back       │
+└─────────────────────────────────────────┘
 ```
-
-**URL Design Principles:**
-- UUIDs for resources (not sequential IDs)
-- Filter params in query string (shareable)
-- Clean paths (no `.html`, no trailing slashes)
-- Concept ID consistent across detail/checkout/viewer
 
 ---
 
-## Information Grouping Rationale
+### 6. Concept Viewer (`/viewer/[id]`)
 
-### Why group by "Can I do this?"
+**Goal**: Everything needed to film this concept
 
-Users evaluating concepts ask:
-1. Is this relevant to my business? → Industry tags, headline
-2. Do I have the people? → minimumPeople
-3. Do I have the time? → timeToRecreate
-4. Do I have the equipment? → equipmentNeeded
-5. Do I have the skill? → actingSkillRequired
-6. Is this worth the price? → viralityScore, price
+**This is the core product.** Must be phone-friendly for between-takes reference.
 
-**Information architecture mirrors this mental model.**
+| Section | Information | Purpose |
+|---------|-------------|---------|
+| Video | Full video with subtitles (translated) | Source material |
+| The Concept | Plain-language explanation | "What this is" |
+| The Script | What to say, scene by scene | "What to do" |
+| What You'll Need | People, equipment, location | Checklist |
+| Tips | Casting notes, flexibility ideas | Guidance |
+| Checklist | Interactive prep checklist | Track progress |
 
-### Why separate Script/Production/Casting/Adapt tabs?
+**Language style:**
+- NOT: "Shot complexity: 3/10"
+- YES: "One camera angle, no fancy cuts needed"
 
-Different user moments:
-- **Script**: "What is this concept?"
-- **Production**: "How do I shoot this?"
-- **Casting**: "Who do I need?"
-- **Adapt**: "How do I make it mine?"
+- NOT: "Acting skill required: 4/10"
+- YES: "Anyone can do this—just look nervous, then relieved"
 
-Users don't need all info at once. Tabs reduce cognitive load.
+**Phone-friendly priority**: The script/guide section should be readable on phone during filming.
 
-### Why show virality score prominently?
+---
 
-- Differentiator from free TikTok browsing
-- Justifies price variation
-- Builds trust in curation
-- Social proof equivalent
+### 7. My Concepts (`/my-concepts`)
 
-### Why show cashback throughout?
+**Goal**: Access purchased concepts, track production
 
-- Pre-purchase: Reduces effective price objection
-- Viewer: Reminds of next step
-- Purchases: Drives completion
-- Deadline creates urgency
+| Section | Information | Why |
+|---------|-------------|-----|
+| Active | Concepts not yet filmed | Priority |
+| Filming | Currently working on (optional status) | Progress |
+| Done | Produced and submitted | Archive |
+| Credits | Balance from submissions | Awareness |
+
+**Simplified from "My Purchases"** - focus on production journey, not transaction history.
+
+---
+
+### 8. Submit Your Video (`/submit/[id]`)
+
+**Goal**: Link produced content for feedback data
+
+| Section | Information | Why |
+|---------|-------------|-----|
+| Concept | Which concept this is for | Context |
+| Form | Platform + URL | Submission |
+| Note | "We'll check it out and credit you if it works" | Simple explanation |
+
+**Tone**: Casual, not transactional. This is about feedback loop, not cashback redemption.
+
+---
+
+## Data Visibility Matrix (Revised)
+
+| Data Field | Landing | Chat | For You | Detail | Viewer |
+|------------|---------|------|---------|--------|--------|
+| value_prop | ✓ | — | — | — | — |
+| business_type | — | ✓ collects | ✓ uses | ✓ uses | — |
+| concept_headline | Sample | — | ✓ | ✓ | ✓ |
+| match_percentage | — | — | ✓ | ✓ | — |
+| trend_lifecycle | — | — | ✓ | ✓ | — |
+| origin_country | — | — | ✓ | ✓ | ✓ |
+| difficulty_level | Sample | — | ✓ | ✓ | ✓ |
+| price | — | — | ✓ | ✓ | — |
+| video | — | — | — | — | ✓ |
+| script | — | — | — | — | ✓ |
+| production_notes | — | — | — | Summary | ✓ |
+
+---
+
+## URL Structure (Revised)
+
+```
+/                         Landing page
+/start                    Onboarding chat (or modal)
+/for-you                  Personalized recommendations
+/concept/[uuid]           Concept detail
+/checkout/[uuid]          Purchase
+/viewer/[uuid]            Concept viewer (post-purchase)
+/my-concepts              Owned concepts
+/submit/[uuid]            Submit produced video
+/profile                  Edit preferences
+/account                  Account settings
+
+/staff                    Staff dashboard (separate)
+/staff/add                Add new concepts (students)
+/staff/review             Review queue
+```
+
+---
+
+## Tone & Language Guidelines
+
+### For business owners with mid/low tech comfort
+
+**Technical terms → Plain language:**
+
+| Don't Say | Say Instead |
+|-----------|-------------|
+| Virality score: 8.2 | 94% match for your café |
+| Production complexity: Low | Easy to film |
+| Acting skill required: 3/10 | Anyone can do this |
+| Shot complexity: Single static | One camera, no fancy cuts |
+| Editing dependency: 2/10 | Barely any editing |
+| Replicability score: 9 | Straightforward to recreate |
+| Cashback premium | Film it → get some back |
+| PPP-adjusted pricing | $24 |
+
+**Headlines should be conversational:**
+- NOT: "POV format with subverted expectation payoff"
+- YES: "Employee dreads telling kitchen about a mistake—gets calm response"
 
 ---
 
 ## Empty States
 
-| Page | Empty State Message | Action |
-|------|---------------------|--------|
-| Browse (no results) | "No concepts match your filters." | "Try adjusting filters" or "Clear all" |
-| Browse (no concepts) | "No concepts available right now. Check back soon!" | None |
-| My Purchases | "You haven't purchased any concepts yet." | "Browse Concepts" |
-| Cashback history | "No cashback claims yet." | Implied from purchases |
+| Page | Message | Tone |
+|------|---------|------|
+| For You (no profile) | "Let's figure out what works for your business" | Inviting |
+| For You (no matches) | "We're finding new concepts for you. Check back soon!" | Reassuring |
+| My Concepts (empty) | "You haven't grabbed any concepts yet" | Casual |
 
 ---
 
-## Error States
+## Why This Architecture Works
 
-| Error | Where | Message | Action |
-|-------|-------|---------|--------|
-| Concept not found | Detail page | "This concept doesn't exist or has been removed." | "Browse Concepts" |
-| Concept expired | Detail page | "This concept is no longer available." | "Browse Concepts" |
-| Concept sold out | Detail page | "This concept is sold out in your market." | "Browse Concepts" |
-| Not purchased | Viewer | "You need to purchase this concept first." | Redirect to detail |
-| Cashback expired | Submit | "The cashback window for this purchase has closed." | Back to purchases |
-| Already submitted | Submit | "You've already submitted a cashback claim for this purchase." | Show status |
-| Payment failed | Checkout | "Your payment could not be processed. [Reason]" | Retry |
-| Network error | Any | "Something went wrong. Please try again." | Retry |
+### For the target user (café/bar/restaurant owner):
+1. **No overwhelm**: Recommendations, not endless browsing
+2. **Confidence**: Match % tells them "this is for you"
+3. **Plain language**: No marketing jargon or tech speak
+4. **Trust**: Human-curated feels different from algorithm
 
----
+### For the business:
+1. **Profile data**: Enables better recommendations over time
+2. **Hidden concept**: Protects IP until purchase
+3. **Feedback loop**: Submissions provide performance data
+4. **PPP pricing**: Market-appropriate prices
 
-## Notification Architecture
-
-### In-App Notifications
-
-| Trigger | Message | Where |
-|---------|---------|-------|
-| Purchase complete | "Purchase complete! View your concept." | Toast + redirect |
-| Cashback submitted | "Submission received. We'll verify within 24-48 hours." | Toast + redirect |
-| Cashback approved | "Cashback approved! $X.XX credited." | Toast (on next visit) |
-| Cashback rejected | "Cashback rejected: [reason]" | Toast (on next visit) |
-
-### Email Notifications
-
-| Trigger | Subject | Content |
-|---------|---------|---------|
-| Purchase | "Your concept is ready" | Receipt, viewer link, cashback info |
-| 7 days before deadline | "7 days left to claim cashback" | Reminder, viewer link, submit link |
-| 1 day before deadline | "Last day for cashback!" | Urgent reminder |
-| Cashback approved | "Cashback approved - $X.XX credited" | Confirmation, balance, browse link |
-| Cashback rejected | "Cashback claim update" | Reason, no resubmit |
+### For the vibe:
+1. **Not a marketplace**: A service that helps you
+2. **Not an algorithm**: Real people picked these
+3. **Not complicated**: Just "here's what works for you"
 
 ---
 
-## Search (Future)
-
-Not in MVP, but architecture consideration:
-
-**What would be searchable:**
-- Concept headlines (concept_core)
-- Industry tags
-- NOT: Transcripts (paid content)
-
-**Where:**
-- Browse page: Search bar above filters
-- Global: Header search
-
----
-
-*This document defines information architecture. Awaiting owner input on priorities and changes.*
+*This document defines the information architecture for letrend.*

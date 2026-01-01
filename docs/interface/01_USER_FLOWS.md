@@ -1,8 +1,14 @@
 # User Flows - letrend
 
 > **Purpose**: Step-by-step flows for every user journey
-> **Status**: Draft - Awaiting Owner Input
-> **Created**: January 1, 2026
+> **Status**: Revised based on owner input
+> **Updated**: January 1, 2026
+
+---
+
+## Core Principle
+
+These flows reflect the **recommendation-first** model: users don't browse a marketplace—they get personalized recommendations after completing a profile.
 
 ---
 
@@ -10,21 +16,22 @@
 
 | Flow | User Type | Priority |
 |------|-----------|----------|
-| [1. First Visit → Browse](#1-first-visit--browse) | New Visitor | Critical |
-| [2. Browse → Evaluate](#2-browse--evaluate) | Visitor/Buyer | Critical |
-| [3. Evaluate → Purchase](#3-evaluate--purchase) | Buyer | Critical |
+| [0. Landing → Onboarding](#0-landing--onboarding) | New Visitor | Critical |
+| [1. Onboarding → Profile Creation](#1-onboarding--profile-creation) | New Visitor | Critical |
+| [2. Profile → Recommendations](#2-profile--recommendations) | Profiled User | Critical |
+| [3. Evaluate → Purchase](#3-evaluate--purchase) | Profiled User | Critical |
 | [4. Purchase → Learn](#4-purchase--learn) | Buyer | Critical |
 | [5. Learn → Produce](#5-learn--produce) | Buyer | High |
-| [6. Produce → Cashback](#6-produce--cashback) | Buyer | High |
-| [7. Return Visit](#7-return-visit) | Returning Buyer | High |
-| [8. Staff: Rate Video](#8-staff-rate-video) | Staff | High |
-| [9. Staff: Verify Cashback](#9-staff-verify-cashback) | Staff | Medium |
+| [6. Produce → Submit](#6-produce--submit) | Buyer | Medium |
+| [7. Return Visit](#7-return-visit) | Returning User | High |
+| [8. Staff: Add Concept](#8-staff-add-concept) | Staff/Student | High |
+| [9. Staff: Review Queue](#9-staff-review-queue) | Staff | Medium |
 
 ---
 
-## 1. First Visit → Browse
+## 0. Landing → Onboarding
 
-**Goal**: Visitor understands value prop and starts browsing concepts
+**Goal**: Visitor understands the value and enters the profile chat
 
 ### Steps
 
@@ -35,337 +42,440 @@
 │                                                                              │
 │ User arrives at letrend.com (from ad, referral, search)                     │
 │                                                                              │
-│ SYSTEM SHOWS:                                                                │
-│ • Hero section with value proposition                                       │
-│ • "How it works" in 4 steps                                                 │
-│ • 4-6 featured concept previews (thumbnail + score + price)                 │
-│ • Industry badges (Restaurant, Café, Bar, etc.)                             │
-│ • [Browse Concepts] primary CTA                                             │
-│ • [Login] / [Get Started] in header                                         │
+│ HERO SECTION:                                                                │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │                                                                       │   │
+│ │  Proven ideas for your business's social media                        │   │
+│ │                                                                       │   │
+│ │  We watch hundreds of viral videos so you don't have to.              │   │
+│ │  Here's what works for businesses like yours.                         │   │
+│ │                                                                       │   │
+│ │  [Let's find concepts for your café →]                               │   │
+│ │                                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ USER DECIDES:                                                                │
-│ → Click [Browse Concepts] → Go to Step 2                                    │
-│ → Click featured concept → Go to Flow 2 (Evaluate)                          │
-│ → Click [Get Started] → Go to Registration Flow                             │
-│ → Bounce → Exit                                                             │
+│ VALUE PROPOSITION (3 points):                                                │
+│ • Human-curated, not algorithmic                                            │
+│ • Picked for businesses like yours                                          │
+│ • Plain-text guidance, not tech jargon                                      │
 │                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: Browse Page Load                                                     │
-├─────────────────────────────────────────────────────────────────────────────┤
+│ SAMPLE CONCEPT CARDS (2-3):                                                  │
+│ • Show headline + difficulty only                                           │
+│ • NO pricing, NO match %, NO detailed info                                  │
+│ • Purpose: Demonstrate the product format                                   │
 │                                                                              │
-│ SYSTEM SHOWS:                                                                │
-│ • Grid of available concepts (12-20 per page)                               │
-│ • Each card shows: thumbnail, headline, score, people, time, price, urgency │
-│ • Filter bar (collapsed on mobile)                                          │
-│ • Sort options (default: "Ending Soon")                                     │
-│ • Total count: "45 concepts available"                                      │
+│ WHAT'S NOT SHOWN:                                                            │
+│ • No video previews                                                         │
+│ • No "Browse all concepts" link                                             │
+│ • No filters or search                                                      │
+│ • No pricing until profile completed                                        │
 │                                                                              │
-│ DEFAULT SORT: Ending Soon (creates urgency)                                 │
-│ DEFAULT FILTERS: None (show all)                                            │
-│                                                                              │
-│ USER CAN:                                                                    │
-│ → Apply filters → Step 3                                                    │
-│ → Click concept card → Flow 2 (Evaluate)                                    │
-│ → Scroll for more → Infinite scroll or pagination                           │
-│ → Change sort → Re-sort results                                             │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 3: Apply Filters                                                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│ USER SELECTS FILTERS:                                                        │
-│ • Industry: [Any ▼] → Restaurant, Café, Bar, Retail, Salon, Gym, Any       │
-│ • People: [Any ▼] → 1, 2, 3+                                               │
-│ • Time: [Any ▼] → <15min, <30min, <1hr, Any                                │
-│ • Price: [Any ▼] → <$10, $10-20, $20+, Any                                 │
-│ • Toggles: [Evergreen only] [Low acting skill]                             │
-│                                                                              │
-│ SYSTEM BEHAVIOR:                                                             │
-│ • Filters apply immediately (no "Apply" button)                             │
-│ • URL updates with query params (?industry=restaurant&people=1)             │
-│ • Result count updates: "12 concepts match"                                 │
-│ • If 0 results: Show "No concepts match. Try adjusting filters."            │
-│                                                                              │
-│ FILTER PERSISTENCE:                                                          │
-│ • Filters persist in URL (shareable)                                        │
-│ • Filters clear on new session (don't store in localStorage)                │
+│ USER DECISIONS:                                                              │
+│ → Click CTA → Go to Flow 1 (Onboarding Chat)                               │
+│ → Scroll for more info → See value prop details                            │
+│ → Bounce → Exit                                                            │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Decision Points
+### Tone
 
-| Decision | Options | Default |
-|----------|---------|---------|
-| Show prices to non-logged-in users? | Yes / No / "From $X" | Yes (full price) |
-| Show "X left in market" to non-logged-in? | Yes / No | No (requires knowing their market) |
-| Allow filter by market? | Yes / No | No (auto-detect from IP) |
-| Infinite scroll vs pagination? | Infinite / Paginated | Paginated (20 per page) |
+The landing page speaks to someone **figuring out social media**:
+- Not salesy
+- Not tech-heavy
+- Welcoming and confident
+- "We've got you covered"
 
 ---
 
-## 2. Browse → Evaluate
+## 1. Onboarding → Profile Creation
 
-**Goal**: User evaluates a specific concept to decide if they want to purchase
+**Goal**: Build a user profile through conversational AI chat
+
+This is the **foundation** of the recommendation system. No meaningful recommendations until this is complete.
 
 ### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 1: Click Concept Card                                                   │
+│ STEP 1: Start Chat                                                           │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ FROM: Browse page, Featured section, or Direct link                         │
+│ URL: /start (or modal overlay)                                              │
 │                                                                              │
-│ NAVIGATION:                                                                  │
-│ • URL: /concepts/[concept-id]                                               │
-│ • Back button returns to browse (with filters preserved)                    │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: Concept Detail Page Load                                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│ PAGE LAYOUT (Desktop):                                                       │
-│ ┌─────────────────────────────┬─────────────────────────────────────────┐   │
-│ │                             │                                         │   │
-│ │   VIDEO PREVIEW AREA        │   PURCHASE PANEL                        │   │
-│ │   (left 60%)                │   (right 40%)                           │   │
-│ │                             │                                         │   │
-│ └─────────────────────────────┴─────────────────────────────────────────┘   │
+│ CHAT INTERFACE:                                                              │
 │ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │   WHY IT WORKS + DETAILS SECTION (full width)                         │   │
+│ │                                                                       │   │
+│ │  🤖 Hey! Let's figure out what kinds of video concepts                │   │
+│ │     would work for your business.                                     │   │
+│ │                                                                       │   │
+│ │     First up—what kind of business do you run?                        │   │
+│ │                                                                       │   │
+│ │     [Café] [Restaurant] [Bar] [Barber/Salon]                         │   │
+│ │     [Retail] [Gym/Fitness] [Other...]                                │   │
+│ │                                                                       │   │
 │ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ VIDEO PREVIEW SHOWS:                                                         │
-│ • Option A: 5-second loop of key moment (no audio)                          │
-│ • Option B: Blurred full video with "Purchase to unlock"                    │
-│ • Option C: Static thumbnail with play icon overlay                         │
-│ [DECISION NEEDED: Which preview approach?]                                  │
-│                                                                              │
-│ PURCHASE PANEL SHOWS:                                                        │
-│ • Concept headline (concept_core)                                           │
-│ • Virality score with visual (star rating or meter)                         │
-│ • Quick stats grid:                                                         │
-│   - People required                                                         │
-│   - Time to produce                                                         │
-│   - Equipment needed                                                        │
-│   - Acting skill level                                                      │
-│   - Industry flexibility                                                    │
-│   - Evergreen status                                                        │
-│ • Price (in user's currency)                                                │
-│ • Urgency indicators:                                                       │
-│   - Time remaining: "47 hours left"                                         │
-│   - Market availability: "3 of 5 left" (if logged in)                       │
-│ • [Purchase Now] button                                                     │
-│ • What's included list                                                      │
-│                                                                              │
-│ WHY IT WORKS SECTION:                                                        │
-│ • 2-3 sentence explanation of why this concept is effective                 │
-│ • Comedy mechanism (if applicable)                                          │
-│ • Relatability factor                                                       │
-│                                                                              │
-│ WORKS FOR SECTION:                                                           │
-│ • Industry tags (clickable → filters browse)                                │
-│                                                                              │
-│ WHAT YOU GET SECTION:                                                        │
-│ • Bullet list of post-purchase features                                     │
+│ CHAT STYLE:                                                                  │
+│ • Conversational, not form-like                                             │
+│ • Quick-select buttons for common answers                                   │
+│ • Free text option always available                                         │
+│ • Can go back and change answers                                            │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 3: User Decision                                                        │
+│ STEP 2: Business Context                                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ USER OPTIONS:                                                                │
+│ QUESTIONS (in conversation flow):                                            │
 │                                                                              │
-│ A) Click [Purchase Now]                                                     │
-│    → If logged in: Go to Flow 3 (Purchase)                                  │
-│    → If not logged in: Show login/register modal, then Flow 3               │
+│ Q: "What kind of business do you run?"                                      │
+│ → café, restaurant, bar, barber, salon, retail, gym, other                  │
 │                                                                              │
-│ B) Click [← Back to Browse]                                                 │
-│    → Return to browse with filters preserved                                │
+│ Q: "How many people work there who might be in videos?"                     │
+│ → "Just me", "Me and one other", "Small team (3-5)", "Bigger team"          │
 │                                                                              │
-│ C) Click industry tag                                                       │
-│    → Go to browse filtered by that industry                                 │
+│ Q: "Have you made video content before?"                                    │
+│ → "Never", "A few times", "Occasionally", "Regularly"                       │
 │                                                                              │
-│ D) Close tab / Navigate away                                                │
-│    → Exit (no action needed)                                                │
+│ ADAPTIVE FOLLOW-UPS:                                                         │
+│ • If "Never" → "No worries! We'll focus on easy stuff."                    │
+│ • If "Regularly" → "Nice! We can show you trendier concepts too."          │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: Tone & Comfort                                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ Q: "What kind of vibe feels right for your brand?"                          │
+│ → "Funny / playful", "Wholesome / warm", "Professional", "Edgy / bold"      │
+│                                                                              │
+│ Q: "How comfortable are you (or your team) being on camera?"                │
+│ → "Nervous about it", "It's fine", "We love it"                            │
+│                                                                              │
+│ OPTIONAL (if user engages):                                                  │
+│ Q: "Want to share your social links? We can get a sense of your style."    │
+│ → Instagram/TikTok URL input                                                │
+│ → "Skip this for now"                                                       │
+│                                                                              │
+│ IF SOCIALS SHARED:                                                           │
+│ • System analyzes existing content tone                                     │
+│ • Infers additional profile attributes                                      │
+│ • "Based on your posts, looks like you keep it pretty casual—nice!"        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 4: Profile Complete                                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ CHAT RESPONSE:                                                               │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │                                                                       │   │
+│ │  🤖 Great! Based on what you told me, here are concepts               │   │
+│ │     that should work for your café.                                   │   │
+│ │                                                                       │   │
+│ │     These are human-picked—our team watches hundreds of               │   │
+│ │     videos and pulls out what's actually working.                     │   │
+│ │                                                                       │   │
+│ │     [Show me what you've got →]                                      │   │
+│ │                                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│ PROFILE DATA STORED:                                                         │
+│ • business_type: "café"                                                     │
+│ • team_size: "duo"                                                          │
+│ • content_experience: "occasional"                                          │
+│ • tone_preference: "funny"                                                  │
+│ • camera_comfort: "fine"                                                    │
+│ • social_links: [optional]                                                  │
+│ • inferred_attributes: [from social analysis if provided]                   │
+│                                                                              │
+│ NAVIGATION:                                                                  │
+│ → Click CTA → Go to Flow 2 (Recommendations)                               │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Decision Points
+### Profile Data Schema
 
-| Decision | Options | Recommendation |
-|----------|---------|----------------|
-| Video preview type | 5-sec loop / Blurred / Static | 5-sec loop (shows quality) |
-| Show market availability to non-logged-in? | Yes / No | No (need to know their market) |
-| "Why it works" source | AI-generated / Staff-written | AI from visual_analysis |
-| Show similar concepts? | Yes / No | No for MVP (complexity) |
+| Field | Type | How Collected |
+|-------|------|---------------|
+| business_type | enum | Direct question |
+| team_size | enum | Direct question |
+| content_experience | enum | Direct question |
+| tone_preference | enum | Direct question |
+| camera_comfort | enum | Direct question |
+| social_links | array | Optional input |
+| inferred_tone | string | AI analysis of socials |
+| location | string | Auto-detected (IP) |
+
+---
+
+## 2. Profile → Recommendations
+
+**Goal**: Show personalized concepts based on profile
+
+### Steps
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: Recommendations Page Load                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ URL: /for-you                                                               │
+│ REQUIRES: Completed profile                                                  │
+│                                                                              │
+│ PERSONALIZED HEADER:                                                         │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │  Concepts for [Business Name]'s café                                  │   │
+│ │  [Update preferences]                                                 │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│ CONCEPT GRID (Primary Content):                                              │
+│                                                                              │
+│ Each card shows:                                                             │
+│ ┌─────────────────────────────────────────┐                                 │
+│ │ 🇺🇸 [Origin flag]                       │                                 │
+│ │                                         │                                 │
+│ │ "Employee dreads telling kitchen        │                                 │
+│ │  about a mistake—gets calm response"    │ ← Headline                      │
+│ │                                         │                                 │
+│ │ 🔥🔥🔥○○ Trending                        │ ← Trend lifecycle               │
+│ │                                         │                                 │
+│ │ 94% match for your café                 │ ← Match score (primary)         │
+│ │                                         │                                 │
+│ │ 👥 1-2  ⏱ 15 min  Easy                  │ ← Difficulty signals            │
+│ │                                         │                                 │
+│ │ $24                                     │ ← Price                         │
+│ └─────────────────────────────────────────┘                                 │
+│                                                                              │
+│ WHAT'S NOT SHOWN:                                                            │
+│ • No video preview or thumbnail                                             │
+│ • No detailed production requirements (yet)                                 │
+│                                                                              │
+│ SORTING:                                                                     │
+│ • Default: Match % (highest first)                                          │
+│ • Optional: Trending, Price, Difficulty                                     │
+│                                                                              │
+│ SECONDARY FILTERS (collapsed by default):                                    │
+│ • Difficulty: Easy / Medium / Needs practice                                │
+│ • People: 1 / 2 / 3+                                                        │
+│ • Purpose: Power users who want to fine-tune                                │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: Click Concept Card                                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ NAVIGATION:                                                                  │
+│ → URL: /concept/[uuid]                                                      │
+│ → Continue to Flow 3 (Evaluate → Purchase)                                  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Match Score Calculation
+
+The match % is based on:
+- Business type alignment
+- Team size vs. people required
+- Comfort level vs. difficulty
+- Tone preference alignment
+- Camera comfort vs. acting requirements
+
+Example: "94% match" means high alignment across most factors.
 
 ---
 
 ## 3. Evaluate → Purchase
 
-**Goal**: User completes payment and gains access to concept
-
-### Prerequisites
-- User must be logged in
-- Concept must be available (not sold out, not expired)
+**Goal**: User evaluates concept details and decides to purchase
 
 ### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 1: Click [Purchase Now]                                                 │
+│ STEP 1: Concept Detail Page Load                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ URL: /concept/[uuid]                                                        │
+│                                                                              │
+│ PAGE LAYOUT:                                                                 │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │                                                                       │   │
+│ │  "Employee dreads telling kitchen about a mistake—                    │   │
+│ │   gets a calm response"                                               │   │
+│ │                                                                       │   │
+│ │  🇺🇸 Originally from United States                                    │   │
+│ │  Seen 847 times in 12 languages                                       │   │
+│ │                                                                       │   │
+│ │  ────────────────────────────────────────────────────────            │   │
+│ │                                                                       │   │
+│ │  94% match for your café                                              │   │
+│ │                                                                       │   │
+│ │  Why it's a good fit:                                                 │   │
+│ │  • Works great for food service                                       │   │
+│ │  • Only needs 2 people                                                │   │
+│ │  • Matches your funny/casual tone                                     │   │
+│ │  • Easy to film—no fancy equipment                                    │   │
+│ │                                                                       │   │
+│ │  ────────────────────────────────────────────────────────            │   │
+│ │                                                                       │   │
+│ │  🔥🔥🔥○○ Trending                                                     │   │
+│ │  "Still getting good traction—not oversaturated yet"                  │   │
+│ │                                                                       │   │
+│ │  ────────────────────────────────────────────────────────            │   │
+│ │                                                                       │   │
+│ │  What you'll need:                                                    │   │
+│ │  • 2 people (employee + manager/chef)                                 │   │
+│ │  • About 15 minutes to film                                           │   │
+│ │  • Just your phone camera                                             │   │
+│ │  • Kitchen or back-of-house setting                                   │   │
+│ │                                                                       │   │
+│ │  Difficulty: Easy                                                     │   │
+│ │  "Anyone can do this—just look nervous, then relieved"               │   │
+│ │                                                                       │   │
+│ │  ────────────────────────────────────────────────────────            │   │
+│ │                                                                       │   │
+│ │  $24                                                                  │   │
+│ │                                                                       │   │
+│ │  [Get This Concept]                                                   │   │
+│ │                                                                       │   │
+│ │  Film your version → get some back                                    │   │
+│ │                                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│ WHAT'S SHOWN (Pre-Purchase):                                                 │
+│ • Headline (the concept in one line)                                        │
+│ • Origin country + spread data                                              │
+│ • Match % with explanation                                                  │
+│ • Trend lifecycle with context                                              │
+│ • What you'll need (plain list)                                             │
+│ • Difficulty with plain explanation                                         │
+│ • Price                                                                     │
+│ • Subtle cashback mention (footnote)                                        │
+│                                                                              │
+│ WHAT'S HIDDEN (Post-Purchase only):                                          │
+│ • Video                                                                     │
+│ • Script/transcript                                                         │
+│ • Scene breakdown                                                           │
+│ • Detailed how-to guidance                                                  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: Click [Get This Concept]                                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │ IF NOT LOGGED IN:                                                            │
-│ • Show modal: "Log in to purchase"                                          │
-│ • Options: [Log in with Google] [Log in with Email] [Create Account]        │
-│ • After auth: Continue to Step 2                                            │
+│ • Show login modal                                                          │
+│ • Profile data preserved from chat session                                  │
+│ • After login: Continue to checkout                                         │
 │                                                                              │
 │ IF LOGGED IN:                                                                │
-│ • Navigate to /checkout/[concept-id]                                        │
-│ • Continue to Step 2                                                        │
+│ • Navigate to /checkout/[uuid]                                              │
+│                                                                              │
+│ IF ALREADY OWNS:                                                             │
+│ • Show: "You already own this concept"                                      │
+│ • Button changes to: [View in My Concepts]                                  │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: Checkout Page Load                                                   │
+│ STEP 3: Checkout                                                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ SYSTEM CHECKS:                                                               │
-│ • Is concept still available? (not expired, not sold out in user's market)  │
-│ • If not available: Show error, redirect to browse                          │
+│ URL: /checkout/[uuid]                                                       │
 │                                                                              │
-│ PAGE SHOWS:                                                                  │
-│                                                                              │
-│ ORDER SUMMARY:                                                               │
+│ SIMPLIFIED CHECKOUT:                                                         │
 │ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │ [Thumbnail] "Concept headline..."                                     │   │
-│ │             ⭐ 8.2/10 • 1 person • 15 min                              │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│ PRICE BREAKDOWN:                                                             │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │ Concept access                                    $10.71              │   │
-│ │ Cashback premium (refundable if you produce)       $1.29              │   │
-│ │ ────────────────────────────────────────────────────────              │   │
-│ │ Total                                             $12.00              │   │
 │ │                                                                       │   │
-│ │ 💰 Produce your version → get $1.44 back (12%)                        │   │
+│ │  "Employee dreads telling kitchen..."                                 │   │
+│ │  94% match • Easy • 1-2 people                                        │   │
+│ │                                                                       │   │
+│ │  $24                                                                  │   │
+│ │                                                                       │   │
+│ │  [Card input - Stripe Elements]                                       │   │
+│ │                                                                       │   │
+│ │  [Pay $24]                                                            │   │
+│ │                                                                       │   │
+│ │  Film your version → get some back                                    │   │
+│ │                                                                       │   │
 │ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ ACCOUNT CREDITS (if any):                                                    │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │ Available credits: $4.32                                              │   │
-│ │ [✓] Apply credits: -$4.32                                             │   │
-│ │ ────────────────────────────────────────────────────────              │   │
-│ │ Amount due: $7.68                                                     │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
+│ IF USER HAS CREDITS:                                                         │
+│ • Auto-apply available credits                                              │
+│ • Show: "Credits applied: -$5.00"                                           │
+│ • Show: "Amount due: $19.00"                                                │
 │                                                                              │
-│ PAYMENT METHOD:                                                              │
-│ • Stripe Elements (card input)                                              │
-│ • Or saved card if returning customer                                       │
-│ • Apple Pay / Google Pay buttons (if available)                             │
-│                                                                              │
-│ [Pay $X.XX] button                                                          │
-│                                                                              │
-│ TRUST SIGNALS:                                                               │
-│ • "Secure checkout powered by Stripe"                                       │
-│ • "Instant access after payment"                                            │
-│ • "30 days to claim cashback"                                               │
+│ WHAT'S NOT SHOWN:                                                            │
+│ • No cashback breakdown (keep it simple)                                    │
+│ • No itemized pricing (just the total)                                      │
+│ • No complex fee structure                                                  │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 3: Submit Payment                                                       │
+│ STEP 4: Payment Processing                                                   │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ USER: Clicks [Pay $X.XX]                                                    │
+│ USER: Clicks [Pay $X]                                                       │
 │                                                                              │
 │ SYSTEM:                                                                      │
 │ 1. Disable button, show spinner                                             │
-│ 2. Validate card via Stripe                                                 │
-│ 3. Create PaymentIntent                                                     │
-│ 4. If successful:                                                           │
-│    a. Create transaction record                                             │
-│    b. Increment sold_count on listing                                       │
-│    c. Deduct credits if used                                                │
-│    d. Redirect to success → Step 4                                          │
-│ 5. If failed:                                                               │
-│    a. Show error message                                                    │
-│    b. Re-enable form                                                        │
-│    c. User can retry                                                        │
+│ 2. Verify concept still available                                           │
+│ 3. Process payment via Stripe                                               │
+│ 4. Create transaction record                                                │
+│ 5. Deduct credits if used                                                   │
+│ 6. Redirect to success                                                      │
 │                                                                              │
-│ ERROR CASES:                                                                 │
-│ • Card declined: "Your card was declined. Please try another card."         │
-│ • Concept sold out during checkout: "Sorry, this concept just sold out      │
-│   in your market. [Browse other concepts]"                                  │
-│ • Network error: "Something went wrong. Please try again."                  │
+│ ERROR HANDLING:                                                              │
+│ • Card declined → "Your card was declined. Please try another card."        │
+│ • Sold out → "Sorry, this concept just sold out. [Browse others]"          │
+│ • Network error → "Something went wrong. Please try again."                 │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 4: Purchase Success                                                     │
+│ STEP 5: Purchase Success                                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ URL: /checkout/[concept-id]/success (or modal on same page)                 │
-│                                                                              │
-│ PAGE SHOWS:                                                                  │
 │ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │                         ✓ Purchase Complete!                          │   │
 │ │                                                                       │   │
-│ │  You now have access to: "Concept headline..."                        │   │
+│ │                    ✓ You've got it!                                   │   │
 │ │                                                                       │   │
-│ │  [View Concept Now]  ← Primary CTA                                    │   │
+│ │  "Employee dreads telling kitchen..."                                 │   │
 │ │                                                                       │   │
-│ │  NEXT STEPS:                                                          │   │
-│ │  1. Study the concept in your viewer                                  │   │
-│ │  2. Use the checklist to plan your shoot                              │   │
-│ │  3. Film your version                                                 │   │
-│ │  4. Submit for 12% cashback within 30 days                            │   │
+│ │  [View Your Concept →]                                               │   │
 │ │                                                                       │   │
-│ │  A receipt has been sent to your-email@example.com                    │   │
+│ │  We've sent a receipt to your-email@example.com                       │   │
 │ │                                                                       │   │
 │ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ EMAIL SENT:                                                                  │
-│ • Receipt with purchase details                                             │
-│ • Link to concept viewer                                                    │
-│ • Cashback deadline reminder                                                │
+│ → Continue to Flow 4 (Purchase → Learn)                                     │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
-
-### Decision Points
-
-| Decision | Options | Recommendation |
-|----------|---------|----------------|
-| Checkout page vs modal? | Dedicated page / Modal | Dedicated page (clearer) |
-| Show cashback breakdown? | Yes / No | Yes (explains the value) |
-| Auto-apply credits? | Auto / Manual toggle | Manual toggle (user control) |
-| Success page vs redirect? | Success page / Direct to viewer | Success page (confirmation) |
 
 ---
 
 ## 4. Purchase → Learn
 
-**Goal**: Buyer uses the concept viewer to understand how to replicate the concept
+**Goal**: Buyer uses the concept viewer to learn how to recreate the video
+
+This is the **core product**—must be phone-friendly for between-takes reference.
 
 ### Steps
 
@@ -374,459 +484,329 @@
 │ STEP 1: Enter Concept Viewer                                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ ENTRY POINTS:                                                                │
-│ • [View Concept Now] from purchase success                                  │
-│ • [View Concept] from My Purchases                                          │
-│ • Direct link from email                                                    │
-│ • Direct URL: /viewer/[concept-id]                                          │
+│ URL: /viewer/[uuid]                                                         │
+│ REQUIRES: Purchased this concept                                            │
 │                                                                              │
 │ ACCESS CHECK:                                                                │
-│ • Verify user has purchased this concept                                    │
-│ • If not purchased: Redirect to concept detail page                         │
+│ • If not purchased: Redirect to /concept/[uuid]                             │
 │ • If purchased: Load viewer                                                 │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: Viewer Page Load                                                     │
+│ STEP 2: Viewer Page (Desktop)                                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ SYSTEM ACTIONS:                                                              │
-│ 1. Fetch concept data                                                       │
-│ 2. Generate signed video URL (4-hour expiry)                                │
-│ 3. Fetch subtitles for user's language (or generate if first request)       │
-│ 4. Calculate production checklist                                           │
+│ LAYOUT:                                                                      │
+│ ┌─────────────────────────────────────┬─────────────────────────────────┐   │
+│ │                                     │                                 │   │
+│ │         VIDEO PLAYER                │    SIDEBAR                      │   │
+│ │         (60%)                       │    (40%)                        │   │
+│ │                                     │                                 │   │
+│ │  • Full video with subtitles        │  THE CONCEPT                    │   │
+│ │  • Translated to user's language    │  Plain explanation of what      │   │
+│ │  • Play controls                    │  this video is about            │   │
+│ │  • No download                      │                                 │   │
+│ │                                     │  ────────────────────           │   │
+│ │                                     │                                 │   │
+│ │                                     │  THE SCRIPT                     │   │
+│ │                                     │  Scene-by-scene:                │   │
+│ │                                     │  1. Employee looks nervous      │   │
+│ │                                     │  2. Walks to kitchen            │   │
+│ │                                     │  3. "Hey, I messed up..."       │   │
+│ │                                     │  4. Manager reacts calmly       │   │
+│ │                                     │                                 │   │
+│ │                                     │  ────────────────────           │   │
+│ │                                     │                                 │   │
+│ │                                     │  WHAT YOU'LL NEED               │   │
+│ │                                     │  □ 2 people                     │   │
+│ │                                     │  □ Phone camera                 │   │
+│ │                                     │  □ Kitchen/back area            │   │
+│ │                                     │  □ ~15 minutes                  │   │
+│ │                                     │                                 │   │
+│ │                                     │  ────────────────────           │   │
+│ │                                     │                                 │   │
+│ │                                     │  TIPS                           │   │
+│ │                                     │  • Anyone can play the employee │   │
+│ │                                     │  • The manager doesn't need to  │   │
+│ │                                     │    actually be your manager     │   │
+│ │                                     │  • Keep the "mistake" vague—    │   │
+│ │                                     │    audience fills in the blank  │   │
+│ │                                     │                                 │   │
+│ └─────────────────────────────────────┴─────────────────────────────────┘   │
 │                                                                              │
-│ PAGE LAYOUT (Desktop):                                                       │
-│ ┌─────────────────────────────────────────┬─────────────────────────────┐   │
-│ │                                         │                             │   │
-│ │         VIDEO PLAYER                    │    SIDEBAR                  │   │
-│ │         (60-70%)                        │    (30-40%)                 │   │
-│ │                                         │                             │   │
-│ │  • Full video with controls             │  [Script] [Production]      │   │
-│ │  • Subtitle overlay                     │  [Casting] [Adapt]          │   │
-│ │  • Scene markers on timeline            │                             │   │
-│ │  • No download button                   │  Tab content based on       │   │
-│ │                                         │  selection                  │   │
-│ │                                         │                             │   │
-│ └─────────────────────────────────────────┴─────────────────────────────┘   │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │                      PRODUCTION CHECKLIST                             │   │
-│ │                      (collapsible, starts expanded)                   │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │                      CASHBACK CTA BAR                                 │   │
-│ │                      (sticky at bottom)                               │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
+│ LANGUAGE STYLE:                                                              │
 │                                                                              │
-│ PAGE LAYOUT (Mobile):                                                        │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │                         VIDEO PLAYER                                  │   │
-│ │                         (full width, 16:9 or 9:16)                    │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │  [Script ▼] [Production ▼] [Casting ▼] [Adapt ▼]                     │   │
-│ │  (accordion panels, one open at a time)                               │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │                      CHECKLIST (collapsible)                          │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │                      CASHBACK CTA (sticky)                            │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
+│ NOT: "Shot complexity: 3/10"                                                │
+│ YES: "One camera angle, no fancy cuts needed"                               │
+│                                                                              │
+│ NOT: "Acting skill required: 4/10"                                          │
+│ YES: "Anyone can do this—just look nervous, then relieved"                  │
+│                                                                              │
+│ NOT: "Minimum personnel: 2"                                                  │
+│ YES: "You'll need 2 people"                                                 │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 3: User Studies Concept                                                 │
+│ STEP 3: Viewer Page (Mobile - Phone-Friendly Priority)                       │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ VIDEO PLAYER INTERACTIONS:                                                   │
-│ • Play/Pause                                                                │
-│ • Seek (scrubber)                                                           │
-│ • Skip 5s forward/back                                                      │
-│ • Click scene marker → Jump to that point                                   │
-│ • Toggle subtitles                                                          │
-│ • Fullscreen                                                                │
-│ • Playback speed (0.5x, 1x, 1.5x, 2x)                                       │
+│ OPTIMIZED FOR BETWEEN-TAKES REFERENCE:                                       │
 │                                                                              │
-│ SIDEBAR TAB: Script                                                          │
-│ • Concept core (headline)                                                   │
-│ • Structure breakdown (hook/setup/payoff)                                   │
-│ • Full transcript                                                           │
-│ • Visual transcript (scene-by-scene)                                        │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │                                                                       │   │
+│ │  ┌─────────────────────────────────────────────────────────────────┐  │   │
+│ │  │              VIDEO (collapsible)                                │  │   │
+│ │  │              Tap to expand/collapse                             │  │   │
+│ │  └─────────────────────────────────────────────────────────────────┘  │   │
+│ │                                                                       │   │
+│ │  THE SCRIPT                                                 [Show all] │   │
+│ │  ─────────────────────────────────────────────────────────────────   │   │
+│ │                                                                       │   │
+│ │  Scene 1: The Approach                                                │   │
+│ │  Employee walks toward kitchen looking nervous                        │   │
+│ │                                                                       │   │
+│ │  Scene 2: The Confession                                              │   │
+│ │  "Hey... I need to tell you something..."                            │   │
+│ │                                                                       │   │
+│ │  Scene 3: The Reveal                                                  │   │
+│ │  "I messed up the order for table 5"                                  │   │
+│ │                                                                       │   │
+│ │  Scene 4: The Twist                                                   │   │
+│ │  Manager just nods calmly: "It's fine, we'll fix it"                 │   │
+│ │  (Anticlimactic reaction is the joke)                                 │   │
+│ │                                                                       │   │
+│ │  ─────────────────────────────────────────────────────────────────   │   │
+│ │                                                                       │   │
+│ │  CHECKLIST                                                            │   │
+│ │  ☑ Got 2 people                                                      │   │
+│ │  ☑ Found filming spot                                                │   │
+│ │  ☐ Rehearsed the lines                                               │   │
+│ │  ☐ Test filmed once                                                  │   │
+│ │                                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ SIDEBAR TAB: Production                                                      │
-│ • People required                                                           │
-│ • Time to recreate                                                          │
-│ • Equipment needed                                                          │
-│ • Shot complexity meter                                                     │
-│ • Editing dependency meter                                                  │
-│ • Notes                                                                     │
-│                                                                              │
-│ SIDEBAR TAB: Casting                                                         │
-│ • Minimum people                                                            │
-│ • Acting skill required (meter)                                             │
-│ • Personality dependency (meter)                                            │
-│ • Attractiveness dependency (meter)                                         │
-│ • Requires customer/stranger?                                               │
-│ • Notes                                                                     │
-│                                                                              │
-│ SIDEBAR TAB: Adapt                                                           │
-│ • Industry examples (tags)                                                  │
-│ • Industry lock score (meter)                                               │
-│ • Swappable elements                                                        │
-│ • Swap suggestions                                                          │
-│ • Notes                                                                     │
-│                                                                              │
-│ PRODUCTION CHECKLIST:                                                        │
-│ • Interactive checkboxes                                                    │
-│ • Grouped by category (Casting, Equipment, Location, Time, Skills)          │
-│ • Progress bar                                                              │
-│ • State saved to localStorage (per user per concept)                        │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 4: User Exits Viewer                                                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│ OPTIONS:                                                                     │
-│ • [← My Purchases] → Go to purchases list                                   │
-│ • [Claim Cashback] → Go to Flow 6                                           │
-│ • Close tab → Exit (checklist state preserved)                              │
-│ • URL expires (4 hours) → Refresh page to get new signed URL                │
-│                                                                              │
-│ URL EXPIRY HANDLING:                                                         │
-│ • If video fails to load (403): Show modal "Session expired"                │
-│ • [Refresh] button → Re-fetch signed URL, resume playback                   │
-│ • Remember playback position                                                │
+│ KEY MOBILE FEATURES:                                                         │
+│ • Script is the hero—large, readable text                                   │
+│ • Video collapses to give script priority                                   │
+│ • Checklist remembers state (localStorage)                                  │
+│ • Works offline after initial load                                          │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
-
-### Decision Points
-
-| Decision | Options | Recommendation |
-|----------|---------|----------------|
-| Default sidebar tab | Script / Production | Script (core content) |
-| Checklist persistence | localStorage / Database | localStorage (simpler) |
-| Subtitle toggle default | On / Off | On (if not native language) |
-| Show scene markers by default? | Yes / No | Yes (aids understanding) |
 
 ---
 
 ## 5. Learn → Produce
 
-**Goal**: User produces their own version of the concept (happens offline)
+**Goal**: User produces their own version (happens offline)
 
 ### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 1: User Plans Production                                                │
+│ STEP 1: User Plans & Prepares                                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │ USING VIEWER:                                                                │
-│ • Review checklist items                                                    │
-│ • Check off items as they prepare                                           │
-│ • Re-watch video sections as needed                                         │
+│ • Review script sections                                                    │
+│ • Watch video for reference                                                 │
+│ • Check off preparation items                                               │
 │                                                                              │
 │ PLATFORM HELPS WITH:                                                         │
-│ • Clear checklist of requirements                                           │
-│ • Script structure breakdown                                                │
-│ • Equipment list                                                            │
-│ • Time estimate                                                             │
-│                                                                              │
-│ PLATFORM CANNOT HELP WITH:                                                   │
-│ • Actually filming (offline activity)                                       │
-│ • Editing (user's own tools)                                                │
-│ • Publishing (user's own accounts)                                          │
+│ • Clear, plain-language script                                              │
+│ • "What you'll need" checklist                                              │
+│ • Tips for flexibility ("doesn't have to be your real manager")            │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: User Films & Edits (Offline)                                         │
+│ STEP 2: Film & Edit (Offline)                                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ This happens entirely outside the platform.                                 │
-│ User uses their own equipment, editing apps, etc.                           │
+│ Happens entirely outside the platform.                                      │
+│ User uses their own phone, editing apps, etc.                               │
+│                                                                              │
+│ MOBILE VIEWER useful for:                                                    │
+│ • Quick reference between takes                                             │
+│ • Checking the script                                                       │
+│ • Re-watching specific scenes                                               │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 3: User Publishes (Offline)                                             │
+│ STEP 3: Publish (Offline)                                                    │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ User publishes to:                                                          │
+│ User publishes to their social platform:                                    │
 │ • TikTok                                                                    │
 │ • Instagram Reels                                                           │
 │ • YouTube Shorts                                                            │
 │                                                                              │
-│ Video must be PUBLIC for cashback verification.                             │
+│ Video must be PUBLIC for submission.                                        │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 4: User Returns to Claim Cashback                                       │
+│ STEP 4: Optional - Submit for Feedback                                       │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ REMINDER TOUCHPOINTS:                                                        │
-│ • Cashback CTA in viewer (persistent)                                       │
-│ • My Purchases shows deadline countdown                                     │
-│ • Email reminder at 7 days remaining                                        │
-│ • Email reminder at 1 day remaining                                         │
+│ SUBTLE PROMPT (in viewer/my-concepts):                                       │
+│ "Film your version → get some back"                                         │
 │                                                                              │
-│ → Continue to Flow 6: Produce → Cashback                                    │
+│ → Continue to Flow 6 if user chooses to submit                              │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 6. Produce → Cashback
+## 6. Produce → Submit
 
-**Goal**: User submits proof of production and receives cashback
+**Goal**: User submits their video link for data capture (and potential credit)
 
-### Prerequisites
-- User has purchased concept
-- User has produced and published their version
-- Cashback window has not expired (30 days from purchase)
+This flow is **de-emphasized**—it's about the feedback loop, not a major feature.
 
 ### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 1: Navigate to Cashback Submission                                      │
+│ STEP 1: Navigate to Submit                                                   │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │ ENTRY POINTS:                                                                │
-│ • [Claim Cashback] button in viewer                                         │
-│ • [Claim Cashback] button in My Purchases                                   │
-│ • Direct link from reminder email                                           │
+│ • "Submit your video" link in viewer (subtle)                               │
+│ • "Link your video" in My Concepts                                          │
 │                                                                              │
-│ URL: /cashback/submit/[transaction-id]                                      │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: Cashback Submission Page                                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│ PAGE SHOWS:                                                                  │
-│                                                                              │
-│ CONCEPT REMINDER:                                                            │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │ [Thumbnail] "Concept headline..."                                     │   │
-│ │             Purchased: Dec 28, 2025                                   │   │
-│ │             You paid: $12.00                                          │   │
-│ │             Cashback available: $1.44 (12%)                           │   │
-│ │             Deadline: ⏰ 28 days remaining                            │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│ SUBMISSION FORM:                                                             │
-│                                                                              │
-│ Platform: *                                                                  │
-│ ○ TikTok                                                                    │
-│ ○ Instagram Reels                                                           │
-│ ○ YouTube Shorts                                                            │
-│                                                                              │
-│ Video URL: *                                                                 │
-│ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │ https://                                                              │   │
-│ └───────────────────────────────────────────────────────────────────────┘   │
-│ Helper text changes based on platform:                                      │
-│ • TikTok: "Paste your TikTok video URL (e.g., tiktok.com/@user/video/123)" │
-│ • Instagram: "Paste your Reel URL (e.g., instagram.com/reel/ABC123)"       │
-│ • YouTube: "Paste your Shorts URL (e.g., youtube.com/shorts/ABC123)"       │
-│                                                                              │
-│ [Submit for Review]                                                         │
-│                                                                              │
-│ REQUIREMENTS:                                                                │
-│ • Video must be public                                                      │
-│ • Posted after your purchase date (Dec 28, 2025)                            │
-│ • Based on this concept                                                     │
-│ • Verification typically takes 24-48 hours                                  │
-│                                                                              │
-│ BONUS INFO:                                                                  │
-│ 💡 Higher engagement on your video = higher cashback (up to 15%)            │
+│ URL: /submit/[uuid]                                                         │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 3: Validate & Submit                                                    │
+│ STEP 2: Submit Form                                                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ CLIENT-SIDE VALIDATION:                                                      │
-│ • Platform selected                                                         │
-│ • URL matches expected format for platform                                  │
-│ • URL is not empty                                                          │
-│                                                                              │
-│ SERVER-SIDE ACTIONS:                                                         │
-│ 1. Validate transaction exists and is eligible                              │
-│ 2. Check deadline not passed                                                │
-│ 3. Check not already submitted                                              │
-│ 4. Extract post ID from URL                                                 │
-│ 5. Create produced_content record (status: pending)                         │
-│ 6. Update transaction (cashback_submitted: true)                            │
-│ 7. Queue for verification                                                   │
-│                                                                              │
-│ SUCCESS:                                                                     │
-│ • Show confirmation message                                                 │
-│ • Redirect to status page                                                   │
-│                                                                              │
-│ ERRORS:                                                                      │
-│ • "Invalid URL format" → Show inline error                                  │
-│ • "Deadline passed" → Show message, no form                                 │
-│ • "Already submitted" → Show status instead                                 │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 4: Submission Confirmation                                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│ PAGE SHOWS:                                                                  │
+│ SIMPLE FORM:                                                                 │
 │ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │                       ✓ Submission Received!                          │   │
 │ │                                                                       │   │
-│ │  Your cashback claim is being reviewed.                               │   │
-│ │  This typically takes 24-48 hours.                                    │   │
+│ │  Link your video                                                      │   │
 │ │                                                                       │   │
-│ │  We'll email you at your-email@example.com when it's processed.       │   │
+│ │  For: "Employee dreads telling kitchen..."                            │   │
 │ │                                                                       │   │
-│ │  [View My Purchases]                                                  │   │
+│ │  Platform:                                                            │   │
+│ │  ○ TikTok  ○ Instagram  ○ YouTube                                    │   │
+│ │                                                                       │   │
+│ │  Video URL:                                                           │   │
+│ │  ┌─────────────────────────────────────────────────────────────────┐  │   │
+│ │  │ https://                                                        │  │   │
+│ │  └─────────────────────────────────────────────────────────────────┘  │   │
+│ │                                                                       │   │
+│ │  [Submit]                                                             │   │
+│ │                                                                       │   │
+│ │  We'll check it out and credit you if it works.                       │   │
 │ │                                                                       │   │
 │ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ EMAIL SENT:                                                                  │
-│ • Confirmation of submission                                                │
-│ • Expected timeline                                                         │
+│ TONE: Casual, not transactional.                                            │
+│ "We'll check it out" not "Your cashback will be processed"                  │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 5: Verification (Background)                                            │
+│ STEP 3: Confirmation                                                         │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ AUTOMATED CHECKS:                                                            │
-│ • Post exists and is public                                                 │
-│ • Post date is after purchase date                                          │
-│                                                                              │
-│ MANUAL REVIEW (if needed):                                                   │
-│ • Staff verifies content matches concept                                    │
-│ • Staff can approve, reject, or request more info                           │
-│                                                                              │
-│ IF APPROVED:                                                                 │
-│ • Calculate cashback rate (10-15% based on engagement)                      │
-│ • Credit buyer's account                                                    │
-│ • Send approval email                                                       │
-│ • Update transaction status                                                 │
-│                                                                              │
-│ IF REJECTED:                                                                 │
-│ • Set rejection reason                                                      │
-│ • Send rejection email with reason                                          │
-│ • Update transaction status                                                 │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 6: User Receives Outcome                                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│ IF APPROVED:                                                                 │
-│ • Email: "Cashback Approved! $1.44 credited to your account."               │
-│ • In-app: My Purchases shows "✅ $1.44 earned"                              │
-│ • Credits available for next purchase                                       │
-│                                                                              │
-│ IF REJECTED:                                                                 │
-│ • Email: "Cashback claim rejected: [reason]"                                │
-│ • In-app: My Purchases shows "❌ Rejected: [reason]"                        │
-│ • Common reasons:                                                           │
-│   - "Video is private or unavailable"                                       │
-│   - "Video was posted before purchase"                                      │
-│   - "Content does not appear to be based on this concept"                   │
-│ • User cannot resubmit (one attempt per purchase)                           │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │                                                                       │   │
+│ │  ✓ Got it!                                                           │   │
+│ │                                                                       │   │
+│ │  We'll take a look and let you know.                                  │   │
+│ │                                                                       │   │
+│ │  [Back to My Concepts]                                                │   │
+│ │                                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Decision Points
+### Backend Purpose
 
-| Decision | Options | Recommendation |
-|----------|---------|----------------|
-| Allow resubmission after rejection? | Yes / No | No (prevents gaming) |
-| Manual or auto verification? | Manual / Auto / Hybrid | Hybrid (auto-check basics, manual for content match) |
-| Show engagement metrics to user? | Yes / No | Yes (transparency) |
-| Variable cashback or fixed? | Variable 10-15% / Fixed 12% | Variable (incentivizes quality) |
+The submission provides:
+1. **Feedback data**: Which concepts actually get produced
+2. **Performance data**: How produced videos perform
+3. **Credit opportunity**: Can give store credit if video does well
+
+But this is **not prominently marketed** as a cashback system.
 
 ---
 
 ## 7. Return Visit
 
-**Goal**: Returning buyer accesses purchases or browses new concepts
+**Goal**: Returning user accesses their concepts or finds new ones
 
 ### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 1: User Returns to Site                                                 │
+│ STEP 1: User Returns                                                         │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │ ENTRY POINTS:                                                                │
 │ • Direct to homepage                                                        │
-│ • Direct to /purchases (bookmarked)                                         │
-│ • Email link (reminder, new concepts, etc.)                                 │
+│ • Direct to /my-concepts                                                    │
+│ • Direct to /for-you                                                        │
 │                                                                              │
-│ AUTH STATE:                                                                  │
-│ • If session valid: Show logged-in header                                   │
-│ • If session expired: Show logged-out header (but remember on login)        │
+│ IF LOGGED IN:                                                                │
+│ • Header shows: [For You] [My Concepts] [Account]                          │
+│ • Profile data remembered                                                   │
+│                                                                              │
+│ IF SESSION EXPIRED:                                                          │
+│ • Prompt login                                                              │
+│ • Profile + purchases preserved after login                                 │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: Access My Purchases                                                  │
+│ STEP 2: My Concepts Page                                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ URL: /purchases                                                             │
+│ URL: /my-concepts                                                           │
 │                                                                              │
-│ PAGE SECTIONS:                                                               │
+│ SECTIONS:                                                                    │
 │                                                                              │
-│ ACCOUNT CREDITS BAR:                                                         │
+│ ACTIVE (not yet filmed):                                                     │
 │ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │ Available credits: $4.32               [Use credits on next purchase] │   │
+│ │  "Employee dreads telling kitchen..."                                 │   │
+│ │  Purchased Jan 1                                                      │   │
+│ │  [View Concept] [Link Your Video]                                     │   │
 │ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ ACTIVE PURCHASES (cashback still available):                                 │
-│ • Sorted by deadline (soonest first)                                        │
-│ • Shows: thumbnail, headline, purchase date, deadline countdown             │
-│ • Actions: [View Concept] [Claim Cashback]                                  │
-│                                                                              │
-│ CASHBACK CLAIMED:                                                            │
-│ • Shows: thumbnail, headline, amount earned, video performance              │
-│ • Actions: [View Concept]                                                   │
-│                                                                              │
-│ EXPIRED (no cashback claimed):                                               │
-│ • Shows: thumbnail, headline, "Cashback expired"                            │
-│ • Actions: [View Concept] (still have access)                               │
-│                                                                              │
-│ EMPTY STATE (no purchases):                                                  │
+│ SUBMITTED (video linked):                                                    │
 │ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │ You haven't purchased any concepts yet.                               │   │
-│ │                                                                       │   │
-│ │ [Browse Concepts]                                                     │   │
+│ │  "Customer tries to order off-menu item..."                           │   │
+│ │  Video linked • Earned $3 credit                                      │   │
+│ │  [View Concept]                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│ CREDITS BAR (if any):                                                        │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │  Store credit: $3.00                                                  │   │
+│ │  Auto-applied on your next purchase                                   │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│ EMPTY STATE:                                                                 │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │  You haven't grabbed any concepts yet.                                │   │
+│ │  [See what's recommended for you]                                     │   │
 │ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -834,142 +814,98 @@
 
 ---
 
-## 8. Staff: Rate Video
+## 8. Staff: Add Concept
 
-**Goal**: Staff member rates an imported video for potential listing
+**Goal**: Staff or student adds a new concept from a discovered video
 
 ### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 1: Access Rating Queue                                                  │
+│ STEP 1: Access Staff Dashboard                                               │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ URL: /staff/rate                                                            │
+│ URL: /staff (separate from customer app)                                    │
 │ REQUIRES: Staff role                                                        │
 │                                                                              │
-│ PAGE SHOWS:                                                                  │
-│ • Queue count: "12 videos pending review"                                   │
-│ • List of pending videos (thumbnail, source, import date)                   │
-│ • Or: "Start reviewing" → loads next video                                  │
+│ DASHBOARD SHOWS:                                                             │
+│ • [Add New Concept]                                                         │
+│ • [Review Queue] (X pending)                                                │
+│ • [Submissions] (cashback submissions)                                      │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: Rate Individual Video                                                │
+│ STEP 2: Add Concept Form                                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ PAGE LAYOUT:                                                                 │
-│ ┌─────────────────────────────────────┬─────────────────────────────────┐   │
-│ │                                     │                                 │   │
-│ │         VIDEO PLAYER                │    RATING FORM                  │   │
-│ │         (full video)                │                                 │   │
-│ │                                     │    Hook:        [1-10 slider]   │   │
-│ │                                     │    Pacing:      [1-10 slider]   │   │
-│ │                                     │    Payoff:      [1-10 slider]   │   │
-│ │                                     │    Originality: [1-10 slider]   │   │
-│ │                                     │    Rewatchable: [1-10 slider]   │   │
-│ │                                     │    ────────────────────────     │   │
-│ │                                     │    Overall:     [1-10 slider]   │   │
-│ │                                     │                                 │   │
-│ │                                     │    Notes:                       │   │
-│ │                                     │    [textarea]                   │   │
-│ │                                     │                                 │   │
-│ │                                     │    [Skip] [Save & Next]         │   │
-│ └─────────────────────────────────────┴─────────────────────────────────┘   │
+│ URL: /staff/add                                                             │
 │                                                                              │
-│ AI ANALYSIS PANEL (collapsible):                                             │
-│ • Shows Gemini's analysis for reference                                     │
-│ • Concept core, comedy mechanism, replicability score                       │
-│ • Staff can use as guide but makes own judgment                             │
+│ FORM FIELDS:                                                                 │
+│ • Source URL (TikTok/Instagram/YouTube)                                     │
+│ • → System fetches video, runs analysis                                     │
 │                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 3: Submit Rating                                                        │
-├─────────────────────────────────────────────────────────────────────────────┤
+│ AFTER ANALYSIS:                                                              │
+│ • Review AI-generated fields                                                │
+│ • Edit headline if needed                                                   │
+│ • Confirm difficulty rating                                                 │
+│ • Add notes                                                                 │
+│ • [Submit for Review] or [Save Draft]                                       │
 │                                                                              │
-│ [Save & Next]:                                                               │
-│ • Save rating to video_ratings table                                        │
-│ • Load next video in queue                                                  │
-│ • Show "Saved!" toast                                                       │
-│                                                                              │
-│ [Skip]:                                                                      │
-│ • Move video to end of queue (or mark as skipped)                           │
-│ • Load next video                                                           │
-│                                                                              │
-│ WHEN QUEUE EMPTY:                                                            │
-│ • Show "All caught up! No videos pending review."                           │
-│ • Link to dashboard                                                         │
+│ FOR STUDENTS (limited role):                                                 │
+│ • Can only submit for review                                                │
+│ • Cannot publish directly                                                   │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 9. Staff: Verify Cashback
+## 9. Staff: Review Queue
 
-**Goal**: Staff verifies cashback submissions
+**Goal**: Staff reviews submitted concepts before they go live
 
 ### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 1: Access Verification Queue                                            │
+│ STEP 1: Access Review Queue                                                  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ URL: /staff/cashback                                                        │
-│ REQUIRES: Staff role                                                        │
+│ URL: /staff/review                                                          │
+│ REQUIRES: Full staff role (not students)                                    │
 │                                                                              │
-│ PAGE SHOWS:                                                                  │
-│ • Queue count: "8 submissions pending"                                      │
-│ • List: buyer, concept, submitted URL, submission date                      │
+│ QUEUE SHOWS:                                                                 │
+│ • Concepts submitted by students                                            │
+│ • Concepts pending final review                                             │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 2: Review Submission                                                    │
+│ STEP 2: Review Individual Concept                                            │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ PAGE LAYOUT:                                                                 │
-│ ┌─────────────────────────────────────┬─────────────────────────────────┐   │
-│ │                                     │                                 │   │
-│ │    ORIGINAL CONCEPT                 │    SUBMITTED VIDEO              │   │
-│ │    (embedded player)                │    (embed or link to open)      │   │
-│ │                                     │                                 │   │
-│ └─────────────────────────────────────┴─────────────────────────────────┘   │
-│                                                                              │
-│ SUBMISSION DETAILS:                                                          │
-│ • Buyer: user@example.com                                                   │
-│ • Purchased: Dec 28, 2025                                                   │
-│ • Submitted: Jan 5, 2026                                                    │
-│ • Platform: TikTok                                                          │
-│ • URL: https://tiktok.com/...                                               │
-│ • Auto-checks:                                                              │
-│   ✓ Post exists and is public                                              │
-│   ✓ Posted after purchase date                                             │
-│   ? Content match (manual review needed)                                    │
+│ REVIEW PANEL:                                                                │
+│ • Video player                                                              │
+│ • AI analysis summary                                                       │
+│ • Editable fields (headline, difficulty, etc.)                              │
+│ • Industry tags                                                             │
+│ • Pricing suggestion                                                        │
 │                                                                              │
 │ ACTIONS:                                                                     │
-│ • [Approve] → Standard 12% cashback                                         │
-│ • [Approve + Bonus] → 15% cashback (high engagement)                        │
-│ • [Reject] → Opens rejection reason dropdown                                │
-│                                                                              │
-│ REJECTION REASONS:                                                           │
-│ • Video is private or unavailable                                           │
-│ • Video was posted before purchase                                          │
-│ • Content does not match concept                                            │
-│ • Other (custom reason)                                                     │
+│ • [Approve] → Goes live in next window                                      │
+│ • [Edit & Approve] → Make changes, then approve                             │
+│ • [Reject] → With reason (back to submitter)                                │
+│ • [Skip] → Move to end of queue                                             │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Summary: Flow Interconnections
+## Summary: Flow Interconnections (Revised)
 
 ```
                     ┌─────────────┐
@@ -979,13 +915,22 @@
                            │
                            ▼
                     ┌─────────────┐
-         ┌─────────│   Browse    │─────────┐
+                    │ Onboarding  │
+                    │   Chat      │
+                    └──────┬──────┘
+                           │
+                    [Profile Created]
+                           │
+                           ▼
+                    ┌─────────────┐
+         ┌─────────│  For You    │─────────┐
+         │         │(Recommendations)      │
          │         └──────┬──────┘         │
          │                │                │
          │                ▼                │
          │         ┌─────────────┐         │
-         │         │  Evaluate   │         │
-         │         │  (Detail)   │         │
+         │         │  Concept    │         │
+         │         │  Detail     │         │
          │         └──────┬──────┘         │
          │                │                │
          │         [Purchase]              │
@@ -1005,17 +950,23 @@
                           │
                           ▼
                    ┌─────────────┐
-                   │  Cashback   │
-                   │  Submit     │
+                   │   Submit    │ (optional, subtle)
+                   │   Video     │
                    └──────┬──────┘
                           │
                           ▼
                    ┌─────────────┐
                    │    My       │
-                   │ Purchases   │
+                   │  Concepts   │
                    └─────────────┘
 ```
 
+Key changes from original:
+- **Onboarding chat** added before any meaningful browsing
+- **For You** replaces browse (recommendation-first)
+- **No video preview** anywhere pre-purchase
+- **Submit** is subtle/optional, not prominent cashback flow
+
 ---
 
-*This document defines all user flows. Awaiting owner input on decision points marked throughout.*
+*This document defines all user flows for letrend. Revised based on owner input.*

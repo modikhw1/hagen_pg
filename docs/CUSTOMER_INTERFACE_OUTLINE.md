@@ -1,597 +1,511 @@
 # letrend - Customer Interface Outline
 
-> **Purpose**: Define the customer-facing interface for the concept marketplace
-> **Status**: Draft
-> **Created**: January 1, 2026
+> **Purpose**: Define the customer-facing interface for the concept recommendation service
+> **Status**: Revised based on owner input
+> **Updated**: January 1, 2026
 
 ---
 
 ## Service Summary
 
-**letrend** is a marketplace where small businesses (restaurants, cafés, bars, etc.) discover and purchase viral TikTok skit concepts they can replicate for their own social media. Concepts are sourced cross-border—ideas that worked in one country, sold to businesses in another.
+**letrend** is a recommendation service where small businesses (cafés, restaurants, bars, barbers) discover video concepts that fit their business. We watch hundreds of viral videos and curate what works—then match concepts to each business's profile.
 
 ### Value Proposition
 
-"Stop scrolling for ideas. Get proven skit concepts delivered to you, with everything you need to recreate them."
+"Proven ideas for your business's social media. We watched hundreds of videos. Here's what we picked for businesses like yours."
+
+### Core Mental Model
+
+letrend is **not a marketplace you browse**—it's a recommendation service that shows you what fits.
+
+| We Are | We Are Not |
+|--------|------------|
+| Human-curated recommendations | Algorithmic marketplace |
+| "Here's what works for you" | "Browse 45 concepts" |
+| Personalized match scores | Generic virality metrics |
+| Plain-language guidance | Technical jargon |
 
 ---
 
-## User Types
+## Target Users
 
-### 1. Buyers (Primary Customers)
-- Small business owners/managers
-- Social media managers for local businesses
-- Marketing freelancers serving SMBs
-- **Goal**: Find easy-to-execute, proven skit formats for their business's TikTok/Reels
+### Primary: Business Owners
+- Café, restaurant, bar, barber/salon, retail, gym owners
+- **Tech comfort**: Mid to low
+- **Goal**: Figure out social media content
+- **Mindset**: "I know I should be posting, but I don't know what"
 
-### 2. Staff (Internal)
-- Curators who rate and approve concepts
-- Support for buyer issues
-- **Goal**: Maintain quality, manage the pipeline
-- **Note**: Likely same app with elevated permissions, not a separate app
+### User Profile Data Collected
+| Field | How Collected | Why Needed |
+|-------|---------------|------------|
+| Business type | AI chat | Match to industry-appropriate concepts |
+| Team size | AI chat | Filter by people required |
+| Content experience | AI chat | Show appropriate difficulty |
+| Tone preference | AI chat | Match humor style |
+| Camera comfort | AI chat | Filter acting requirements |
+| Location | Auto-detect | PPP pricing |
 
 ---
 
 ## Customer Journey & Pages
 
-### Phase 1: Discovery
+### Phase 0: Onboarding (NEW)
 
 #### Landing Page (`/`)
-**Purpose**: Explain the service, convert visitors to signups
+**Purpose**: Get visitors into the profile chat
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  [Logo]                              [Login] [Get Started]       │
+│  [Logo]                                              [Login]     │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│     Stop Scrolling. Start Creating.                              │
-│     Proven skit concepts for your business—                      │
-│     ready to film in 15 minutes.                                 │
+│     Proven ideas for your business's social media                │
 │                                                                  │
-│     [Browse Concepts]  [How It Works]                            │
+│     We watch hundreds of viral videos so you don't have to.      │
+│     Here's what works for businesses like yours.                 │
 │                                                                  │
-├─────────────────────────────────────────────────────────────────┤
-│  HOW IT WORKS                                                    │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│  │ Browse   │→ │ Purchase │→ │  Study   │→ │ Produce  │        │
-│  │ concepts │  │ (from $5)│  │  & learn │  │ your own │        │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘        │
+│     [Let's find concepts for your café →]                       │
 │                                                                  │
 ├─────────────────────────────────────────────────────────────────┤
-│  FEATURED CONCEPTS (preview - requires account to purchase)      │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐               │
-│  │ [thumb] │ │ [thumb] │ │ [thumb] │ │ [thumb] │               │
-│  │ 8.2/10  │ │ 7.5/10  │ │ 9.1/10  │ │ 7.8/10  │               │
-│  │ $12     │ │ $8      │ │ $18     │ │ $10     │               │
-│  └─────────┘ └─────────┘ └─────────┘ └─────────┘               │
+│  WHY LETREND                                                     │
+│                                                                  │
+│  • Human-curated, not algorithmic                               │
+│  • Picked for businesses like yours                             │
+│  • Plain-text guidance, not tech jargon                         │
 │                                                                  │
 ├─────────────────────────────────────────────────────────────────┤
-│  PERFECT FOR:                                                    │
-│  Restaurants • Cafés • Bars • Retail • Salons • Gyms            │
+│  SAMPLE CONCEPTS (headline + difficulty only)                    │
+│                                                                  │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
+│  │ "Employee   │ │ "Customer   │ │ "POV: The   │               │
+│  │  dreads..." │ │  asks for..."│ │  order is..."│               │
+│  │             │ │             │ │             │               │
+│  │ Easy        │ │ Medium      │ │ Easy        │               │
+│  └─────────────┘ └─────────────┘ └─────────────┘               │
+│                                                                  │
+│  No prices, no details—just a taste of what's available         │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Key Elements:**
-- Clear value prop above the fold
-- Social proof (if available): "500+ concepts sold", "Used by 200+ businesses"
-- Preview of concepts (teaser thumbnails, not full access)
-- Trust signals: "View-only access", "No subscription required"
+**What's NOT on landing page:**
+- No video previews or thumbnails
+- No "Browse all" option
+- No pricing until profile is created
+- No filters or search
 
 ---
 
-#### Browse/Marketplace (`/concepts`)
-**Purpose**: Discover available concepts, filter by needs
+#### Onboarding Chat (`/start`)
+**Purpose**: Build user profile through conversational AI
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  [Logo]                    [Search...]     [My Purchases] [👤]  │
-├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  BROWSE CONCEPTS                                                 │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │                                                           │  │
+│  │  Hey! Let's figure out what kinds of video concepts       │  │
+│  │  would work for your business.                            │  │
+│  │                                                           │  │
+│  │  First up—what kind of business do you run?               │  │
+│  │                                                           │  │
+│  └───────────────────────────────────────────────────────────┘  │
 │                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ Filters:                                                     ││
-│  │ [Industry ▼] [People: 1-2 ▼] [Time: <30min ▼] [Price ▼]    ││
-│  │ [Evergreen only ☐] [Low acting skill ☐]                     ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  [Café]  [Restaurant]  [Bar]  [Barber/Salon]                   │
+│  [Retail]  [Gym]  [Other...]                                   │
 │                                                                  │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
-│  │ [Video     ]│ │ [Video     ]│ │ [Video     ]│               │
-│  │ [Thumbnail ]│ │ [Thumbnail ]│ │ [Thumbnail ]│               │
-│  │             │ │             │ │             │               │
-│  │ "POV: The   │ │ "When the   │ │ "Customer   │               │
-│  │ customer..."│ │ order is..."│ │ asks for..."│               │
-│  │             │ │             │ │             │               │
-│  │ ⭐ 8.2/10   │ │ ⭐ 7.5/10   │ │ ⭐ 9.1/10   │               │
-│  │ 👥 1 person │ │ 👥 2 people │ │ 👥 1 person │               │
-│  │ ⏱ 15 min   │ │ ⏱ 30 min   │ │ ⏱ 15 min   │               │
-│  │             │ │             │ │             │               │
-│  │ $12         │ │ $8          │ │ $18         │               │
-│  │ ⏰ 47h left │ │ ⏰ 23h left │ │ ⏰ 71h left │               │
-│  │             │ │             │ │             │               │
-│  │ [Preview]   │ │ [Preview]   │ │ [Preview]   │               │
-│  └─────────────┘ └─────────────┘ └─────────────┘               │
-│                                                                  │
-│  [Load More]                                                     │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │ Or type your answer...                                    │  │
+│  └───────────────────────────────────────────────────────────┘  │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Key Filters:**
-- **Industry**: Restaurant, Café, Bar, Retail, Salon, Gym, Any
-- **People Required**: 1, 2, 3+
-- **Time to Produce**: <15min, <30min, <1hr, Any
-- **Price Range**: <$10, $10-20, $20+
-- **Evergreen Only**: Exclude trend-dependent concepts
-- **Acting Skill**: Low (<4), Medium (4-7), Any
+**Conversation Flow:**
+1. Business type (café, restaurant, bar, barber, retail, gym)
+2. Team size (just me, 2 people, small team, bigger team)
+3. Content experience (never, occasionally, regularly)
+4. Tone preference (funny, wholesome, professional, edgy)
+5. Camera comfort (nervous, fine, love it)
+6. Optional: Social links for tone inference
 
-**Card Information:**
-- Thumbnail (blurred or partial for non-logged-in users)
-- Concept headline (the "concept core")
-- Virality score (0-10)
-- Production quick stats: people, time
-- Price (PPP-adjusted for user's market)
-- Time remaining in listing window
-- [Preview] button → Concept Detail page
+**End of chat:**
+> "Great! Based on what you told me, here are concepts that should work for your café."
+
+---
+
+### Phase 1: Recommendations
+
+#### For You Page (`/for-you`)
+**Purpose**: Show personalized concept recommendations
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  [Logo]           [For You]  [My Concepts]        [$3] [👤 ▼]   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Concepts for [Business Name]'s café                            │
+│  [Update preferences]                                           │
+│                                                                  │
+│  ┌───────────────────┐ ┌───────────────────┐ ┌─────────────────┐│
+│  │ 🇺🇸                │ │ 🇬🇧                │ │ 🇦🇺              ││
+│  │                   │ │                   │ │                 ││
+│  │ "Employee dreads  │ │ "Customer tries   │ │ "POV: You have  ││
+│  │  telling kitchen  │ │  to order off-    │ │  to work the    ││
+│  │  about mistake"   │ │  menu item"       │ │  morning shift" ││
+│  │                   │ │                   │ │                 ││
+│  │ 🔥🔥🔥○○ Trending   │ │ 🔥🔥○○○ Rising     │ │ 🔥🔥🔥🔥○ Peak    ││
+│  │                   │ │                   │ │                 ││
+│  │ 94% match         │ │ 87% match         │ │ 91% match       ││
+│  │                   │ │                   │ │                 ││
+│  │ 👥 1-2  ⏱ 15min   │ │ 👥 2  ⏱ 20min     │ │ 👥 1  ⏱ 10min   ││
+│  │ Easy              │ │ Takes practice    │ │ Easy            ││
+│  │                   │ │                   │ │                 ││
+│  │ $24               │ │ $28               │ │ $22             ││
+│  └───────────────────┘ └───────────────────┘ └─────────────────┘│
+│                                                                  │
+│  [▼ Filters]  (collapsed - difficulty, people count)            │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Card Elements (no video/thumbnail):**
+- Origin country flag
+- Headline (concept in one sentence)
+- Trend lifecycle indicator (fire icons)
+- Match percentage (primary decision factor)
+- Quick stats: people, time, difficulty level
+- Price ($20-30 range, PPP-adjusted)
+
+**Sorting:** Default by match % (highest first)
 
 ---
 
 ### Phase 2: Evaluation
 
-#### Concept Detail (`/concepts/[id]`)
-**Purpose**: Evaluate before purchase—show enough to decide, not enough to replicate
+#### Concept Detail (`/concept/[uuid]`)
+**Purpose**: Enough info to decide, without revealing the concept
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  [← Back to Browse]                              [My Purchases]  │
+│  [← For You]                                                     │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  ┌─────────────────────────┐  ┌─────────────────────────────┐   │
-│  │                         │  │                              │   │
-│  │   [VIDEO PREVIEW]       │  │  "POV: You have to tell     │   │
-│  │   (5-second loop OR     │  │   the kitchen you messed    │   │
-│  │    blurred full video)  │  │   up an order"              │   │
-│  │                         │  │                              │   │
-│  │   🔒 Full video after   │  │  Virality Score: ⭐ 8.2/10  │   │
-│  │      purchase           │  │                              │   │
-│  │                         │  │  ┌────────────────────────┐  │   │
-│  └─────────────────────────┘  │  │ QUICK STATS            │  │   │
-│                               │  │ 👥 1 person            │  │   │
-│                               │  │ ⏱ 15 minutes          │  │   │
-│                               │  │ 📷 Smartphone only     │  │   │
-│                               │  │ 🎭 Low acting (2/10)   │  │   │
-│                               │  │ 🔄 Works for: Any      │  │   │
-│                               │  │ 🌲 Evergreen: Yes      │  │   │
-│                               │  └────────────────────────┘  │   │
-│                               │                              │   │
-│                               │  $12.00                      │   │
-│                               │  ⏰ 47 hours left            │   │
-│                               │  📊 3 of 5 left in market   │   │
-│                               │                              │   │
-│                               │  [Purchase Now]              │   │
-│                               │                              │   │
-│                               │  ✓ 30-day access             │   │
-│                               │  ✓ Full script + breakdown   │   │
-│                               │  ✓ Production checklist      │   │
-│                               │  ✓ 12% cashback available    │   │
-│                               └─────────────────────────────┘   │
+│  "Employee dreads telling kitchen about a mistake—               │
+│   gets a calm response"                                          │
 │                                                                  │
-├─────────────────────────────────────────────────────────────────┤
-│  WHY THIS WORKS                                                  │
-│  "Self-deprecating humor where the employee is the butt of      │
-│   the joke. Relatable to anyone who's worked service. Low       │
-│   production value feels authentic, not like an ad."            │
+│  🇺🇸 Originally from United States                               │
+│  Seen 847 times in 12 languages                                  │
 │                                                                  │
-├─────────────────────────────────────────────────────────────────┤
-│  WORKS FOR THESE BUSINESSES                                      │
-│  [Restaurant] [Café] [Bar] [Retail] [Any service business]      │
+│  ─────────────────────────────────────────────────              │
 │                                                                  │
-├─────────────────────────────────────────────────────────────────┤
-│  WHAT YOU GET AFTER PURCHASE                                     │
-│  • Full video with subtitles in your language                   │
-│  • Scene-by-scene breakdown (hook → setup → payoff)             │
-│  • Exact transcript                                              │
-│  • Production checklist                                          │
-│  • Casting & equipment requirements                              │
-│  • Flexibility notes (what you can swap out)                    │
+│  94% match for your café                                         │
+│                                                                  │
+│  Why it's a good fit:                                            │
+│  • Works great for food service                                  │
+│  • Only needs 2 people                                           │
+│  • Matches your funny/casual tone                                │
+│  • Easy to film—no fancy equipment                               │
+│                                                                  │
+│  ─────────────────────────────────────────────────              │
+│                                                                  │
+│  🔥🔥🔥○○ Trending                                                │
+│  "Still getting good traction—not oversaturated yet"             │
+│                                                                  │
+│  ─────────────────────────────────────────────────              │
+│                                                                  │
+│  What you'll need:                                               │
+│  • 2 people (employee + manager/chef)                            │
+│  • About 15 minutes to film                                      │
+│  • Just your phone camera                                        │
+│  • Kitchen or back-of-house setting                              │
+│                                                                  │
+│  Difficulty: Easy                                                │
+│  "Anyone can do this—just look nervous, then relieved"          │
+│                                                                  │
+│  ─────────────────────────────────────────────────              │
+│                                                                  │
+│  $24                                                             │
+│                                                                  │
+│  [Get This Concept]                                              │
+│                                                                  │
+│  Film your version → get some back                               │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 **Pre-Purchase Shows:**
-- Limited preview (5-sec loop, blurred, or just thumbnail)
-- Concept headline and "why it works" summary
-- Quick stats (people, time, skill, equipment)
-- Virality score
-- Price and urgency (time left, market availability)
-- What's included after purchase
+- Headline
+- Origin country + spread data
+- Match % with explanation
+- Trend lifecycle with context
+- What you'll need (plain list)
+- Difficulty with plain explanation
+- Price
+- Subtle cashback mention
 
-**Pre-Purchase Hides:**
-- Full video
-- Transcript
+**Pre-Purchase Hides (the product):**
+- Video
+- Script/transcript
 - Scene breakdown
-- Production details
+- Detailed how-to guidance
 
 ---
 
 ### Phase 3: Purchase
 
-#### Checkout (`/checkout/[concept-id]`)
-**Purpose**: Complete purchase, simple and fast
+#### Checkout (`/checkout/[uuid]`)
+**Purpose**: Simple, confident purchase
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  CHECKOUT                                                        │
-├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ [Thumb] "POV: You have to tell the kitchen..."             ││
-│  │         ⭐ 8.2/10 • 1 person • 15 min                       ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  "Employee dreads telling kitchen..."                            │
+│  94% match • Easy • 1-2 people                                   │
 │                                                                  │
-│  Price breakdown:                                                │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ Concept access                              $10.71          ││
-│  │ Cashback premium (refundable if produced)    $1.29          ││
-│  │ ─────────────────────────────────────────────────────       ││
-│  │ Total                                       $12.00          ││
-│  │                                                              ││
-│  │ 💰 Produce your version → get $1.44 back (12%)              ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  $24                                                             │
 │                                                                  │
-│  Account credits: $0.00  [+ Add credits]                        │
+│  [Card input - Stripe Elements]                                 │
 │                                                                  │
-│  Payment Method:                                                 │
-│  ○ Credit Card                                                  │
-│  ○ PayPal                                                       │
+│  [Pay $24]                                                       │
 │                                                                  │
-│  [Pay $12.00]                                                   │
-│                                                                  │
-│  ✓ Secure checkout                                              │
-│  ✓ Instant access after payment                                 │
-│  ✓ 30 days to claim cashback                                    │
+│  Film your version → get some back                               │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Elements:**
-- Concept summary (what they're buying)
-- Price breakdown showing cashback premium
-- Account credits (from previous cashbacks)
-- Payment methods
-- Trust signals
+**Simplified:**
+- No itemized breakdown
+- No cashback line items
+- Just the price
+- Credits auto-applied if available
 
 ---
 
-### Phase 4: Learning (Post-Purchase)
+### Phase 4: Learning (Core Product)
 
-#### Concept Viewer (`/viewer/[concept-id]`)
-**Purpose**: Study the concept with everything needed to replicate
-
-This is the core product experience. Based on `04_CONCEPT_VIEWER.md`:
+#### Concept Viewer (`/viewer/[uuid]`)
+**Purpose**: Everything needed to film this concept (phone-friendly)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  [← My Purchases]                    [Claim Cashback] [Share feedback]  │
+│  [← My Concepts]                                                         │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
 │  ┌─────────────────────────────────┐  ┌──────────────────────────────┐  │
-│  │                                 │  │  TABS: [Script] [Production] │  │
-│  │        VIDEO PLAYER             │  │        [Casting] [Adapt]     │  │
 │  │                                 │  │                              │  │
-│  │   [Full video with subtitles]   │  │  ┌──────────────────────┐   │  │
-│  │                                 │  │  │ CONCEPT CORE         │   │  │
-│  │   🔒 View only (no download)    │  │  │ "Employee dreads     │   │  │
-│  │                                 │  │  │  telling kitchen     │   │  │
-│  │  ┌──────────────────────────┐   │  │  │  about mistake—      │   │  │
-│  │  │ [SETUP]──[DEV]──[PAYOFF] │   │  │  │  cuts to their       │   │  │
-│  │  │     ▲                    │   │  │  │  stone-faced         │   │  │
-│  │  │  current                 │   │  │  │  reaction"           │   │  │
-│  │  └──────────────────────────┘   │  │  └──────────────────────┘   │  │
+│  │        VIDEO PLAYER             │  │  THE CONCEPT                 │  │
+│  │                                 │  │  Plain explanation of what   │  │
+│  │   [Full video with subtitles]   │  │  this video is about         │  │
+│  │   Translated to your language   │  │                              │  │
+│  │                                 │  │  ──────────────────────────  │  │
 │  │                                 │  │                              │  │
-│  │  [⏪ 5s] [▶️ Play] [5s ⏩]       │  │  STRUCTURE BREAKDOWN         │  │
-│  │                                 │  │  ┌──────────────────────┐   │  │
-│  └─────────────────────────────────┘  │  │ HOOK (0-3s)          │   │  │
-│                                       │  │ Text overlay + nerves │   │  │
-│                                       │  ├──────────────────────┤   │  │
-│                                       │  │ SETUP (3-8s)         │   │  │
-│                                       │  │ "Hey everyone, um..."|   │  │
-│                                       │  ├──────────────────────┤   │  │
-│                                       │  │ PAYOFF (8-12s)       │   │  │
-│                                       │  │ Cut to deadpan face  │   │  │
-│                                       │  └──────────────────────┘   │  │
+│  │  [⏪]  [▶️]  [⏩]               │  │  THE SCRIPT                  │  │
+│  │                                 │  │  Scene-by-scene:             │  │
+│  └─────────────────────────────────┘  │  1. Employee looks nervous   │  │
+│                                       │  2. Walks to kitchen         │  │
+│                                       │  3. "Hey, I messed up..."    │  │
+│                                       │  4. Manager reacts calmly    │  │
 │                                       │                              │  │
-│                                       │  FULL TRANSCRIPT             │  │
-│                                       │  "Hey everyone, um... Ah,   │  │
-│                                       │   I'm already crying."       │  │
+│                                       │  ──────────────────────────  │  │
+│                                       │                              │  │
+│                                       │  WHAT YOU'LL NEED            │  │
+│                                       │  □ 2 people                  │  │
+│                                       │  □ Phone camera              │  │
+│                                       │  □ Kitchen/back area         │  │
+│                                       │  □ ~15 minutes               │  │
+│                                       │                              │  │
+│                                       │  ──────────────────────────  │  │
+│                                       │                              │  │
+│                                       │  TIPS                        │  │
+│                                       │  • Anyone can play employee  │  │
+│                                       │  • Manager doesn't need to   │  │
+│                                       │    be actual manager         │  │
+│                                       │  • Keep "mistake" vague      │  │
+│                                       │                              │  │
 │                                       └──────────────────────────────┘  │
-│                                                                          │
-│  ┌───────────────────────────────────────────────────────────────────┐  │
-│  │ PRODUCTION CHECKLIST                                               │  │
-│  │ ☐ 1 person (you or employee)                                      │  │
-│  │ ☐ Smartphone                                                       │  │
-│  │ ☐ Counter/service area setting                                    │  │
-│  │ ☐ 15 minutes to shoot                                             │  │
-│  │ ☐ Basic editing (2 cuts)                                          │  │
-│  └───────────────────────────────────────────────────────────────────┘  │
-│                                                                          │
-│  ┌───────────────────────────────────────────────────────────────────┐  │
-│  │ 💰 CLAIM YOUR CASHBACK                                             │  │
-│  │ Produce your version, submit the link, get $1.44 back.            │  │
-│  │ ⏰ 28 days remaining                    [Submit Production →]     │  │
-│  └───────────────────────────────────────────────────────────────────┘  │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Sidebar Tabs:**
+**Mobile Priority:** Script/guide readable on phone during filming
 
-1. **Script Tab**
-   - Concept core (one-sentence summary)
-   - Structure breakdown (hook → setup → payoff)
-   - Full transcript
-   - Visual transcript (scene-by-scene with stage directions)
+**Language Style:**
+- NOT: "Shot complexity: 3/10"
+- YES: "One camera angle, no fancy cuts needed"
 
-2. **Production Tab**
-   - Time to recreate
-   - Equipment needed
-   - Shot complexity (1-10 meter)
-   - Editing dependency (1-10 meter)
-   - Production notes
-
-3. **Casting Tab**
-   - Minimum people
-   - Acting skill required (1-10)
-   - Personality dependency
-   - Requires customer/stranger?
-   - Casting notes
-
-4. **Adapt Tab** (Flexibility)
-   - Industry examples where this works
-   - What elements are swappable
-   - Swap suggestions
-   - Industry lock score
-
-**Bottom Section:**
-- Production checklist (interactive, checkable)
-- Cashback CTA with deadline countdown
+- NOT: "Acting skill required: 4/10"
+- YES: "Anyone can do this—just look nervous, then relieved"
 
 ---
 
-### Phase 5: Production Support
+### Phase 5: My Concepts
 
-#### My Purchases (`/purchases`)
-**Purpose**: Access purchased concepts, track cashback
+#### My Concepts (`/my-concepts`)
+**Purpose**: Access purchased concepts, track production
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  MY PURCHASES                                                    │
+│  MY CONCEPTS                                                     │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  Account Credits: $4.32                     [Use at Checkout]   │
+│  Store credit: $3.00 (auto-applied on next purchase)            │
 │                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ ACTIVE (can still claim cashback)                           ││
-│  ├─────────────────────────────────────────────────────────────┤│
-│  │ [Thumb] "POV: Kitchen mistake"                              ││
-│  │         Purchased: Dec 28, 2025                             ││
-│  │         Cashback: ⏰ 28 days left                           ││
-│  │         [View Concept] [Claim Cashback]                     ││
-│  ├─────────────────────────────────────────────────────────────┤│
-│  │ [Thumb] "When the regular customer..."                      ││
-│  │         Purchased: Dec 15, 2025                             ││
-│  │         Cashback: ⏰ 15 days left                           ││
-│  │         [View Concept] [Claim Cashback]                     ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │ "Employee dreads telling kitchen..."                       │  │
+│  │ Purchased Jan 1                                            │  │
+│  │ [View Concept]  [Link Your Video]                          │  │
+│  └───────────────────────────────────────────────────────────┘  │
 │                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ CASHBACK CLAIMED                                            ││
-│  ├─────────────────────────────────────────────────────────────┤│
-│  │ [Thumb] "Impossible order"                                  ││
-│  │         Purchased: Nov 20, 2025                             ││
-│  │         Cashback: ✅ $1.80 earned                           ││
-│  │         Your video: 12.4K views                             ││
-│  │         [View Concept]                                      ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ EXPIRED (cashback window closed)                            ││
-│  ├─────────────────────────────────────────────────────────────┤│
-│  │ [Thumb] "Behind the scenes"                                 ││
-│  │         Purchased: Oct 5, 2025                              ││
-│  │         Cashback: ❌ Expired                                ││
-│  │         [View Concept]                                      ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │ "Customer tries to order off-menu item..."                 │  │
+│  │ Video linked • Earned $3 credit                            │  │
+│  │ [View Concept]                                              │  │
+│  └───────────────────────────────────────────────────────────┘  │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+**Simplified from "My Purchases":**
+- Focus on production journey, not transaction history
+- No prominent deadline countdowns (cashback de-emphasized)
+
 ---
 
-#### Cashback Submission (`/cashback/submit/[transaction-id]`)
-**Purpose**: Submit proof of production for cashback
+#### Submit Video (`/submit/[uuid]`)
+**Purpose**: Link produced content (subtle, for feedback data)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  CLAIM CASHBACK                                                  │
-├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ [Thumb] "POV: Kitchen mistake"                              ││
-│  │         You paid: $12.00                                    ││
-│  │         Cashback available: $1.44 (12%)                     ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  Link your video                                                 │
 │                                                                  │
-│  Submit a link to your produced video:                          │
+│  For: "Employee dreads telling kitchen..."                       │
 │                                                                  │
 │  Platform:                                                       │
-│  ○ TikTok                                                       │
-│  ○ Instagram Reels                                              │
-│  ○ YouTube Shorts                                               │
+│  ○ TikTok  ○ Instagram  ○ YouTube                               │
 │                                                                  │
 │  Video URL:                                                      │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ https://www.tiktok.com/@yourbusiness/video/123...          ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │ https://                                                   │  │
+│  └───────────────────────────────────────────────────────────┘  │
 │                                                                  │
-│  [Submit for Review]                                            │
+│  [Submit]                                                        │
 │                                                                  │
-│  ℹ️ Requirements:                                                │
-│  • Video must be public                                         │
-│  • Posted after your purchase date                              │
-│  • Based on this concept (your interpretation)                  │
-│  • Verification takes 24-48 hours                               │
-│                                                                  │
-│  💡 Higher engagement = higher cashback (up to 15%)             │
+│  We'll check it out and credit you if it works.                  │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
----
-
-## Staff Interface (Same App, Elevated Permissions)
-
-### Staff Dashboard (`/staff`)
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  STAFF DASHBOARD                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
-│  │ Pending  │ │ Active   │ │ Cashback │ │ Revenue  │           │
-│  │ Review   │ │ Listings │ │ Queue    │ │ Today    │           │
-│  │   12     │ │   45     │ │    8     │ │  $234    │           │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
-│                                                                  │
-│  [Rate Videos] [Manage Listings] [Verify Cashbacks] [Analytics] │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Video Rating Interface (`/staff/rate`)
-- Queue of imported videos needing rating
-- 5+1 dimension rating (hook, pacing, payoff, originality, rewatchable, overall)
-- Notes field
-- Approve/reject for marketplace
-
-### Cashback Verification (`/staff/cashback`)
-- Queue of pending cashback submissions
-- View original concept + submitted video
-- Approve/reject with reason
-- Override cashback percentage
+**Tone:** Casual, not transactional. For feedback loop, not cashback redemption.
 
 ---
 
-## Information Architecture
+## Staff Interface
+
+Separate from customer app, accessed at `/staff`:
+
+| Page | Purpose |
+|------|---------|
+| `/staff` | Dashboard |
+| `/staff/add` | Add new concept (students) |
+| `/staff/review` | Review queue (full staff) |
+
+---
+
+## URL Structure
 
 ```
-/                           Landing page
-/concepts                   Browse marketplace
-/concepts/[id]              Concept detail (pre-purchase)
-/checkout/[id]              Purchase flow
-/viewer/[id]                Concept viewer (post-purchase)
-/purchases                  My purchased concepts
-/cashback/submit/[tx-id]    Submit cashback claim
-/account                    Account settings
-/account/credits            Credit balance & history
+/                         Landing page
+/start                    Onboarding chat
+/for-you                  Personalized recommendations
+/concept/[uuid]           Concept detail (pre-purchase)
+/checkout/[uuid]          Purchase
+/viewer/[uuid]            Concept viewer (post-purchase)
+/my-concepts              Owned concepts
+/submit/[uuid]            Submit produced video
+/profile                  Edit preferences
+/account                  Account settings
 
-/staff                      Staff dashboard (elevated role)
-/staff/rate                 Video rating queue
-/staff/listings             Manage active listings
-/staff/cashback             Verify cashback submissions
-/staff/analytics            Sales & performance data
+/staff                    Staff dashboard (separate)
+/staff/add                Add new concepts
+/staff/review             Review queue
 ```
 
 ---
 
-## Key UX Principles
+## Key UX Principles (Revised)
 
-### 1. Urgency Without Pressure
-- 72-hour windows create natural urgency
-- "X left in your market" shows scarcity
-- No fake countdown timers or dark patterns
+### 1. Recommendation Over Browse
+- No endless scrolling through concepts
+- Profile → personalized recommendations
+- Match % tells users "this is for you"
 
-### 2. Value Before Payment
-- Show enough to evaluate (stats, preview, "why it works")
-- Hide enough to require purchase (full video, transcript, breakdown)
+### 2. Human-Curated Feel
+- "We picked these" not "Algorithm suggests"
+- Origin countries show global curation
+- Plain language, no tech jargon
 
-### 3. Cashback as Feature, Not Afterthought
-- Prominent throughout (pre-purchase, viewer, purchases)
-- Clear deadline tracking
-- Credits usable on next purchase
+### 3. Profile First
+- No meaningful recommendations without profile
+- AI chat makes profile creation conversational
+- Profile enables the match % feature
 
-### 4. Mobile-First
-- Target users (SMB owners) often on mobile
-- Video viewer must work well on phones
-- Quick purchase flow (Apple Pay, Google Pay)
+### 4. Plain Language
+- Speak to mid/low tech comfort users
+- "Easy to film" not "Production complexity: 3/10"
+- "Anyone can do this" not "Acting skill required: 2"
 
-### 5. Low Friction Onboarding
-- Browse without account
-- Account required only for purchase
-- Social login (Google, Apple)
+### 5. Concept is the Product
+- No video preview pre-purchase
+- Text, match %, trend—enough to decide
+- Full reveal only after purchase
 
----
+### 6. Cashback De-emphasized
+- Subtle mention: "Film it → get some back"
+- Not prominent in pricing or UI
+- Primary purpose: feedback data
 
-## MVP Feature Prioritization
-
-### Must Have (Launch)
-- [ ] Browse/filter concepts
-- [ ] Concept detail page
-- [ ] Purchase flow (Stripe)
-- [ ] Concept viewer (video + script + checklist)
-- [ ] My purchases page
-- [ ] Basic cashback submission
-- [ ] Staff rating interface
-
-### Should Have (Soon After)
-- [ ] Subtitles in buyer's language
-- [ ] Email notifications (purchase, cashback reminders)
-- [ ] Account credits system
-- [ ] Cashback verification workflow
-- [ ] Basic analytics for staff
-
-### Could Have (Later)
-- [ ] Performance metrics on cashback submissions
-- [ ] "Similar concepts" recommendations
-- [ ] Favorites/wishlist
-- [ ] Bulk purchase discounts
-- [ ] API for agencies
+### 7. Mobile-Friendly Viewer
+- Script readable on phone between takes
+- Video collapsible to prioritize script
+- Works offline after initial load
 
 ---
 
-## Technical Considerations
+## Pricing
 
-### Authentication
-- Supabase Auth (existing in hagen)
-- Social logins: Google, Apple
-- Role-based access: buyer, staff, admin
-
-### Payments
-- Stripe for purchases
-- Stripe credits/balance for cashback
-- PPP pricing via market_contexts table
-
-### Video Delivery
-- GCS signed URLs (4-hour expiry)
-- No download enforcement (HTML5 controls disabled)
-- HLS streaming for longer videos (future)
-
-### Internationalization
-- UI in English initially
-- Subtitles generated per market (Google Translate API)
-- Prices in local currency (via Stripe)
+| Aspect | Value |
+|--------|-------|
+| Price range | $20-30 per concept |
+| PPP adjustment | Yes, based on market |
+| Credits | From video submissions, auto-applied |
 
 ---
 
-## Next Steps
+## What Changed from Original
 
-1. **Validate this outline** with stakeholders
-2. **Create wireframes** for key flows (Figma)
-3. **Define API contracts** between letrend frontend and hagen backend
-4. **Decide**: Separate Next.js app or extension of hagen?
-5. **Set up project** (letrend repo or folder in hagen)
+| Original | Revised |
+|----------|---------|
+| Browse marketplace | Recommendation-first |
+| Video preview options | No video pre-purchase |
+| Virality score 8.2/10 | 94% match for your café |
+| Prominent cashback | Subtle footnote |
+| $5-15 pricing | $20-30 pricing |
+| Technical stats | Plain language |
+| My Purchases | My Concepts |
+| Generic landing | Profile-first CTA |
 
 ---
 
-*This outline defines the customer-facing interface for letrend. The actual codebase (API, AI analysis, model training) remains in hagen-main.*
+## Detailed Documentation
+
+For complete specifications, see:
+- [01_USER_FLOWS.md](./interface/01_USER_FLOWS.md) - Step-by-step user journeys
+- [02_COMPONENTS.md](./interface/02_COMPONENTS.md) - UI component specifications
+- [03_INFORMATION_ARCHITECTURE.md](./interface/03_INFORMATION_ARCHITECTURE.md) - What info appears where
+- [04_EDGE_CASES.md](./interface/04_EDGE_CASES.md) - Error handling and edge cases
+
+---
+
+*This outline defines the customer-facing interface for letrend. Revised based on owner input.*

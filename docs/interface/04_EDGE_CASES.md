@@ -1,20 +1,181 @@
 # Edge Cases & Error Handling - letrend
 
 > **Purpose**: Define behavior for edge cases, errors, and unusual states
-> **Status**: Draft - Awaiting Owner Input
-> **Created**: January 1, 2026
+> **Status**: Revised based on owner input
+> **Updated**: January 1, 2026
 
 ---
 
 ## Edge Case Categories
 
-1. [Availability & Timing](#availability--timing)
-2. [Payment & Transactions](#payment--transactions)
-3. [Video & Media](#video--media)
-4. [Cashback](#cashback)
-5. [User Account](#user-account)
-6. [Concurrency](#concurrency)
-7. [Data & Validation](#data--validation)
+1. [Profile & Onboarding](#profile--onboarding) *(NEW)*
+2. [Recommendations](#recommendations) *(NEW)*
+3. [Availability & Timing](#availability--timing)
+4. [Payment & Transactions](#payment--transactions)
+5. [Video & Media](#video--media)
+6. [Video Submissions](#video-submissions) *(Renamed from Cashback)*
+7. [User Account](#user-account)
+8. [Concurrency](#concurrency)
+9. [Data & Validation](#data--validation)
+
+---
+
+## Profile & Onboarding
+
+### EC-P1: User abandons onboarding chat mid-conversation
+
+**Scenario**: User starts profile chat but closes tab before completing.
+
+**Handling**:
+- Save partial profile data to session/localStorage
+- On return: "Pick up where you left off?"
+- Option to start fresh
+
+**Recovery**:
+```
+┌─────────────────────────────────────────┐
+│ Welcome back!                           │
+│                                         │
+│ You were setting up your profile.       │
+│                                         │
+│ [Continue] [Start Over]                 │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### EC-P2: User tries to access /for-you without profile
+
+**Scenario**: User navigates directly to recommendations page without completing onboarding.
+
+**Handling**:
+- Redirect to /start (onboarding chat)
+- Show: "Let's set up your profile first so we can show you relevant concepts."
+
+**NOT shown**:
+- Generic recommendations (defeats the purpose)
+- Browse page (doesn't exist)
+
+---
+
+### EC-P3: User provides "Other" business type not in our list
+
+**Scenario**: User selects "Other..." and types "Pet grooming salon".
+
+**Handling**:
+- Accept and store as-is
+- AI attempts to map to closest category for recommendations
+- Flag for staff review to potentially add new category
+
+**Recommendation calculation**:
+- Use partial matching where possible
+- Show concepts tagged as "flexible" or "universal"
+- May show lower match percentages (honest about uncertainty)
+
+---
+
+### EC-P4: User's social links are private or inaccessible
+
+**Scenario**: User shares Instagram link, but account is private.
+
+**Handling**:
+- Gracefully skip analysis
+- Message: "We couldn't access that account (it might be private). No worries—we'll work with what you told us!"
+- Continue with manual preferences only
+
+---
+
+### EC-P5: User wants to update profile after purchases
+
+**Scenario**: User bought concepts for "café", now wants to change to "bar".
+
+**Handling**:
+- Allow profile updates at any time
+- Existing purchases remain accessible
+- New recommendations reflect updated profile
+- Optional: "Your recommendations will update based on your new preferences."
+
+---
+
+### EC-P6: Social link analysis returns unexpected tone
+
+**Scenario**: AI infers "edgy" from socials, but user selected "wholesome".
+
+**Handling**:
+- User's explicit preference takes priority
+- Store inferred data as secondary signal
+- Don't override or contradict user's stated preference
+
+---
+
+## Recommendations
+
+### EC-R1: No concepts match user's profile
+
+**Scenario**: New user with unusual profile combination, no concepts score above threshold.
+
+**Handling**:
+```
+┌─────────────────────────────────────────┐
+│ We're finding concepts for you          │
+│                                         │
+│ Your profile is a bit unique—we're      │
+│ working on adding more concepts that    │
+│ fit. Check back soon!                   │
+│                                         │
+│ [Update Preferences]                    │
+└─────────────────────────────────────────┘
+```
+
+**Actions**:
+- Log profile for staff review (demand signal)
+- Consider showing lower-match concepts with disclaimer
+
+---
+
+### EC-R2: All recommendations are sold out
+
+**Scenario**: User's top matches are all sold out in their market.
+
+**Handling**:
+- Show sold-out concepts grayed out (so user knows supply exists)
+- Show message: "Popular concepts sell fast. New ones are added regularly."
+- Option to see concepts with lower match scores
+
+---
+
+### EC-R3: User in new market with no concepts available
+
+**Scenario**: User is in a newly supported country with no active listings.
+
+**Handling**:
+```
+┌─────────────────────────────────────────┐
+│ We're just getting started in [Country] │
+│                                         │
+│ New concepts are coming soon.           │
+│ Leave your email and we'll let you know │
+│ when there's something for you.         │
+│                                         │
+│ [Email input] [Notify Me]               │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### EC-R4: Match percentage calculation fails
+
+**Scenario**: Missing data prevents match % calculation for some concepts.
+
+**Handling**:
+- Hide match % for affected concepts
+- Show other indicators (trend, difficulty, price)
+- Log for investigation
+
+**Display**:
+- Instead of "94% match" show nothing (don't show "0%" or "N/A")
+
+---
 
 ---
 
@@ -319,7 +480,9 @@
 
 ---
 
-## Cashback
+## Video Submissions
+
+*Renamed from "Cashback" - this feature is de-emphasized in the UI but still functions.*
 
 ### EC-16: Submitted URL is not public
 
@@ -534,11 +697,13 @@ COMMIT;
 
 ## Error Message Guidelines
 
-### Tone
+### Tone (Plain Language)
 - Clear and direct
 - No blame ("Your payment failed" not "You entered wrong info")
 - Actionable when possible
 - Human, not robotic
+- **No jargon** - speak to mid/low tech comfort users
+- **No error codes** in user-facing messages
 
 ### Structure
 ```
@@ -620,4 +785,4 @@ For each edge case:
 
 ---
 
-*This document defines edge case handling. Awaiting owner input on policy decisions.*
+*This document defines edge case handling for letrend. Revised based on owner input.*
