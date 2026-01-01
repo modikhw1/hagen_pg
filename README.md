@@ -1,178 +1,160 @@
-# hagen_pg - Planning Ground for Cross-Border Concept Marketplace
+# letrend
 
-> **Purpose**: Documentation and data repository for the TikTok skit concept marketplace  
-> **Related Codebase**: `hagen` (separate repository)  
-> **Last Updated**: December 3, 2025
+> Proven video concepts for your business's social media.
 
----
-
-## What This Repository Contains
-
-```
-hagen_pg/
-├── AI_HANDOFF.md                    # Original system documentation (170+ features)
-├── AI_CONTEXT_HANDOFF.md            # Context for AI handoff
-├── analysis_export_2025-12-03.json  # Training data export (51 videos)
-├── analysis_export_2025-12-03.csv   # Flattened CSV version
-├── docs/
-│   ├── MVP_MASTER_SPECIFICATION.md  # Master spec (start here)
-│   └── components/                  # 11 deep-dive documents
-│       ├── 01_SYSTEM_ARCHITECTURE.md
-│       ├── 02_DATABASE_SCHEMA.md
-│       ├── 03_PRICING_LOGIC.md
-│       ├── 04_CONCEPT_VIEWER.md
-│       ├── 05_API_ENDPOINTS.md
-│       ├── 06_MODEL_TRAINING.md
-│       ├── 07_EVERGREEN_LOGIC.md
-│       ├── 08_ROTATION_LOGIC.md
-│       ├── 09_CASHBACK_FLOW.md
-│       ├── 10_SUBTITLE_GENERATION.md
-│       └── 11_IMPLEMENTATION_PHASES.md
-└── INTEGRATION.md                   # How to use from hagen codespace
-```
+**letrend** is a personalized dashboard that helps small businesses discover and recreate viral TikTok concepts. We watch hundreds of videos and pick the ones that fit your business—so you don't have to.
 
 ---
 
-## How to Read and Understand the Data
+## What is letrend?
 
-### 1. Start with the Master Specification
+Most small business owners know they should be on TikTok, but don't know what to post. letrend solves this by:
 
-```bash
-# The master spec gives you the complete picture
-cat docs/MVP_MASTER_SPECIFICATION.md
+1. **Analyzing viral concepts** - We identify replicable video formats from around the world
+2. **Matching to your business** - AI-powered matching based on your profile, tone, and constraints
+3. **Making it easy to execute** - Plain-language guides, scripts, and checklists
+
+**This is not a marketplace you browse.** It's a personalized dashboard that shows you what fits your business.
+
+---
+
+## Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Social Sync** | Connect TikTok/Instagram for automatic brand profiling |
+| **Match Percentage** | Every concept shows how well it fits your business (0-100%) |
+| **Profile Completeness** | "How well we know you" meter encourages profile growth |
+| **Curated Rows** | Top Matches, Fresh This Week, Easy Wins, Local Favorites |
+| **Mini-Chat** | Quick refinement without leaving the dashboard |
+| **Plain Language** | "Easy to film" not "Shot complexity: 3/10" |
+
+---
+
+## Documentation
+
+This repository contains the complete specification for letrend.
+
 ```
-
-This document contains:
-- System overview and core loop
-- All database table definitions
-- Pricing formula
-- API endpoints summary
-- Training pipeline overview
-- Links to all component deep dives
-
-### 2. Understand the Rating System
-
-Videos are rated on **5+1 dimensions** (all 0-1 scale):
-
-| Dimension | What It Measures |
-|-----------|------------------|
-| `hook` | Does the first 1-3 seconds grab attention? |
-| `pacing` | Is the timing right? Does it hold attention? |
-| `payoff` | Is the ending satisfying? Worth the watch? |
-| `originality` | Is this fresh or just another copy? |
-| `rewatchable` | Would you watch it again? Share? |
-| `overall_score` | **TARGET VARIABLE** - holistic rating (0-1) |
-
-### 3. Understand the Feature Schema
-
-Each video has **170+ AI-extracted features** in the `visual_analysis` JSON. Key categories:
-
-| Category | Example Features | Count |
-|----------|-----------------|-------|
-| `visual.*` | hookStrength, peopleCount, settingType | ~12 |
-| `audio.*` | quality, hasVoiceover, soundEffects | ~10 |
-| `content.*` | topic, style, format, duration | ~8 |
-| `script.*` | conceptCore, transcript, replicability.score | ~33 |
-| `casting.*` | minimumPeople, actingSkillRequired | ~6 |
-| `production.*` | shotComplexity, timeToRecreate | ~5 |
-| `flexibility.*` | industryLock, swappableCore | ~6 |
-| `comedyStyle.*` | primaryTechnique, contrastMechanism | ~50+ |
-| `standalone.*` | worksWithoutContext, memeDependent | ~5 |
-| `trends.*` | memeDependent, usesPremadeSound | ~8 |
-
-See `AI_HANDOFF.md` for the complete variable-by-variable schema.
-
-### 4. Read the Training Data Export
-
-```bash
-# JSON format (full nested structure)
-cat analysis_export_2025-12-03.json | jq '.[0] | keys'
-
-# CSV format (flattened with dot notation)
-head -1 analysis_export_2025-12-03.csv | tr ',' '\n' | head -20
-```
-
-**JSON Structure per video:**
-```json
-{
-  "id": "uuid",
-  "video_id": "uuid",
-  "overall_score": 0.75,
-  "dimensions": {
-    "hook": 0.8,
-    "pacing": 0.7,
-    "payoff": 0.9,
-    "originality": 0.6,
-    "rewatchable": 0.7
-  },
-  "notes": "Owner's explanation of rating",
-  "video": {
-    "id": "uuid",
-    "tiktok_id": "7xxx",
-    "author": "@username",
-    "visual_analysis": {
-      "feature_count": 150,
-      "visual": { ... },
-      "audio": { ... },
-      "script": { ... },
-      // ... 170+ features
-    }
-  }
-}
-```
-
-### 5. Understand Schema Versions
-
-Not all videos have the same analysis depth:
-
-| Version | Detection | Features | Training Use |
-|---------|-----------|----------|--------------|
-| v0 | `feature_count` missing | ~5 | ❌ Skip |
-| v1 | `feature_count` < 50 | ~30 | ⚠️ Partial |
-| v2 | `feature_count` 50-99 | ~80 | ⚠️ Partial |
-| **v3** | `feature_count` >= 100 | 150-200 | ✅ Use for training |
-
-**Only use v3 videos for training!**
-
-```javascript
-// Filter to v3 only
-const trainingData = videos.filter(v => 
-  v.visual_analysis?.feature_count >= 100
-);
+docs/
+├── MVP_MASTER_SPECIFICATION.md      # Start here - complete system overview
+├── CUSTOMER_INTERFACE_OUTLINE.md    # Customer-facing UX summary
+│
+├── interface/                       # User experience documentation
+│   ├── 01_USER_FLOWS.md             # Onboarding, dashboard, purchase flows
+│   ├── 02_COMPONENTS.md             # UI component specifications
+│   ├── 03_INFORMATION_ARCHITECTURE.md # What info appears where
+│   └── 04_EDGE_CASES.md             # Error states, edge cases
+│
+└── components/                      # Technical deep dives
+    ├── 01_SYSTEM_ARCHITECTURE.md    # Overall system design
+    ├── 02_DATABASE_SCHEMA.md        # Database tables and relationships
+    ├── 03_PRICING_LOGIC.md          # PPP-adjusted pricing ($20-30 US)
+    ├── 04_CONCEPT_VIEWER.md         # Post-purchase viewer specs
+    ├── 05_API_ENDPOINTS.md          # API specifications
+    ├── 06_MODEL_TRAINING.md         # ML model for scoring concepts
+    ├── 07_EVERGREEN_LOGIC.md        # Evergreen vs trending detection
+    ├── 08_ROTATION_LOGIC.md         # 72-hour listing windows
+    ├── 09_CASHBACK_FLOW.md          # Feedback loop incentives
+    ├── 10_SUBTITLE_GENERATION.md    # Multi-language support
+    ├── 11_IMPLEMENTATION_PHASES.md  # Development roadmap
+    └── 12_PROFILE_AND_MATCHING.md   # User profiles and match % calculation
 ```
 
 ---
 
-## Quick Reference: Key Numbers
+## Core Concepts
 
-| Metric | Value |
-|--------|-------|
-| Training-ready videos | 51 |
-| Target for first model | 200 |
-| Features per video | 170+ |
-| Rating dimensions | 5+1 |
-| Correlation milestones | 100, 200, 300, 500 |
-| Budget constraint | $100-1000 |
+### Match Percentage (0-100%)
+
+Every concept shows a personalized match score:
+
+```
+matchPercentage = (conceptScore × 0.6) + (profileFitScore × 0.4)
+```
+
+- **Concept Score (60%)**: Intrinsic quality—replicability, engagement potential, trend independence
+- **Profile Fit (40%)**: How well it matches your business, goals, and constraints
+
+### User Profile
+
+Built through AI chat or social sync:
+
+| Data Point | How Collected | Why Needed |
+|------------|---------------|------------|
+| Business type | AI chat | Match to industry-appropriate concepts |
+| Team size | Social sync inference | Filter by people required |
+| Tone preference | Social analysis | Match humor style |
+| Goals | AI chat | Align recommendations to outcomes |
+| Constraints | AI chat | Filter by difficulty/resources |
+
+### Pricing
+
+- **US base price**: $20-30 per concept
+- **PPP-adjusted**: Lower prices for lower-income markets
+- **Scarcity**: Limited sales per market (3-5) and globally (10-15)
 
 ---
 
-## For AI Agents: Reading Order
+## Target User
 
-If you're an AI agent trying to understand this system:
+**Primary**: Small business owners (cafés, restaurants, salons, retail) who:
+- Know they should be on TikTok but don't know what to post
+- Have mid/low tech comfort
+- Are time-constrained (can't watch hundreds of videos)
+- Want proven formats, not creative risk
 
-1. **First**: Read this README
-2. **Then**: Read `docs/MVP_MASTER_SPECIFICATION.md` (complete picture)
-3. **If needed**: Dive into specific component docs (01-11)
-4. **For features**: Reference `AI_HANDOFF.md` section 4 (complete schema)
-5. **For data**: Query or read `analysis_export_2025-12-03.json`
-
-See `INTEGRATION.md` for how to fetch this from another codespace.
+**Not for**: Agencies, influencers, or people who already know what works.
 
 ---
 
-## Integration with hagen Codespace
+## Tech Stack
 
-See [INTEGRATION.md](./INTEGRATION.md) for:
-- How to fetch documentation from this repo
-- Chunked reading strategy for Claude Opus 4.5
-- API patterns for querying training data
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js, React |
+| Backend | Node.js, PostgreSQL |
+| AI Analysis | Gemini 2.0 Flash (170+ features per video) |
+| Matching | Custom ML model trained on owner ratings |
+| Video | GCS storage, view-only (no downloads) |
+| Payments | Stripe with PPP pricing |
+
+---
+
+## Getting Started
+
+### For Developers
+
+1. Read `docs/MVP_MASTER_SPECIFICATION.md` for the complete picture
+2. Review `docs/interface/` for user-facing flows
+3. Check `docs/components/05_API_ENDPOINTS.md` for API contracts
+
+### For AI Agents
+
+Reading order:
+1. This README
+2. `docs/MVP_MASTER_SPECIFICATION.md`
+3. `docs/interface/03_INFORMATION_ARCHITECTURE.md`
+4. Specific component docs as needed
+
+---
+
+## Data Assets
+
+| File | Description |
+|------|-------------|
+| `analysis_export_2025-12-03.json` | Training data (51 rated videos) |
+| `analysis_export_2025-12-03.csv` | Flattened CSV version |
+| `AI_HANDOFF.md` | Complete 170+ feature schema |
+
+---
+
+## Related
+
+- **hagen** (separate repo): Implementation codebase
+- Training data and feature extraction system is operational
+- MVP specification is complete and ready for implementation
+
+---
+
+*Built with the belief that small businesses deserve access to proven content strategies, not just guesswork.*
