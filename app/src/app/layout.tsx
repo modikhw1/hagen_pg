@@ -4,6 +4,7 @@ import { Notifications } from "@mantine/notifications";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "./globals.css";
+import { Navigation } from "@/components";
 
 export const metadata: Metadata = {
   title: "letrend",
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body>
         <MantineProvider>
           <Notifications />
+          <Navigation />
           {children}
         </MantineProvider>
       </body>
