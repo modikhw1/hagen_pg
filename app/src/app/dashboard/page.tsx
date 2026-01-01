@@ -1,16 +1,17 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Container, Title, Text, Group, Stack, Grid, Paper } from "@mantine/core";
 import { DashboardRow, ProfileMeter, MiniChat } from "@/components";
 import { mockUserProfile, mockDashboardRows } from "@/mocks/data";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const profile = mockUserProfile;
   const rows = mockDashboardRows;
 
   const handleConceptClick = (conceptId: string) => {
-    console.log("Clicked concept:", conceptId);
-    // TODO: Navigate to concept detail page
+    router.push(`/concept/${conceptId}`);
   };
 
   const handleImproveProfile = () => {
