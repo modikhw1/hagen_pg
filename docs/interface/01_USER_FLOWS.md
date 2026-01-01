@@ -8,7 +8,13 @@
 
 ## Core Principle
 
-These flows reflect the **recommendation-first** model: users don't browse a marketplace—they get personalized recommendations after completing a profile.
+These flows reflect the **personalized dashboard** model: users don't browse a generic marketplace—they see a curated dashboard with match scores, scarcity cues, and ongoing profile refinement.
+
+Key patterns:
+- **TikTok/IG sync** for automatic brand profiling
+- **"How well we know you"** meter that encourages profile growth
+- **Ongoing chat** - "come back anytime" to refine preferences
+- **Mini-chat on dashboard** for quick context/vibe adjustments
 
 ---
 
@@ -148,24 +154,54 @@ This is the **foundation** of the recommendation system. No meaningful recommend
                                    │
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 3: Tone & Comfort                                                       │
+│ STEP 3: Social Sync (Primary Profile Method)                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│ Q: "What kind of vibe feels right for your brand?"                          │
-│ → "Funny / playful", "Wholesome / warm", "Professional", "Edgy / bold"      │
+│ Q: "Got a TikTok or Instagram for your business? Drop the link and         │
+│     I'll figure out your vibe automatically."                               │
 │                                                                              │
-│ Q: "How comfortable are you (or your team) being on camera?"                │
-│ → "Nervous about it", "It's fine", "We love it"                            │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │  🔗 TikTok: @yourbusiness                                             │   │
+│ │  📷 Instagram: @yourbusiness (optional)                               │   │
+│ │                                                                       │   │
+│ │  [Analyze my content]     [Skip, I'll describe it myself]            │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ OPTIONAL (if user engages):                                                  │
-│ Q: "Want to share your social links? We can get a sense of your style."    │
-│ → Instagram/TikTok URL input                                                │
-│ → "Skip this for now"                                                       │
+│ IF SOCIALS PROVIDED → ANALYSIS RUNS:                                         │
 │                                                                              │
-│ IF SOCIALS SHARED:                                                           │
-│ • System analyzes existing content tone                                     │
-│ • Infers additional profile attributes                                      │
-│ • "Based on your posts, looks like you keep it pretty casual—nice!"        │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │                                                                       │   │
+│ │  🤖 Checking out your content...                                      │   │
+│ │                                                                       │   │
+│ │  [Progress bar / scanning animation]                                  │   │
+│ │                                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│ WHAT WE ANALYZE:                                                             │
+│ • Bio text → keywords, tone, positioning                                    │
+│ • Follower count → business size inference                                  │
+│ • Recent posts → content style, humor type, energy                          │
+│ • Posting frequency → content experience level                              │
+│ • Hashtag patterns → industry, local focus                                  │
+│                                                                              │
+│ AFTER ANALYSIS:                                                              │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │                                                                       │   │
+│ │  🤖 Nice! Based on your TikTok, here's what I picked up:             │   │
+│ │                                                                       │   │
+│ │     • Your vibe: Playful, casual                                     │   │
+│ │     • Content style: Behind-the-scenes, quick humor                  │   │
+│ │     • Looks like a small team operation                              │   │
+│ │     • You post a few times a week                                    │   │
+│ │                                                                       │   │
+│ │  Does that sound right? [Looks good] [Let me adjust]                 │   │
+│ │                                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│ IF SKIPPED → MANUAL QUESTIONS:                                               │
+│ • "What kind of vibe feels right for your brand?"                          │
+│ • "How comfortable are you being on camera?"                               │
+│ • (Same as before, fallback path)                                          │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
                                    │
@@ -177,27 +213,43 @@ This is the **foundation** of the recommendation system. No meaningful recommend
 │ CHAT RESPONSE:                                                               │
 │ ┌───────────────────────────────────────────────────────────────────────┐   │
 │ │                                                                       │   │
-│ │  🤖 Great! Based on what you told me, here are concepts               │   │
-│ │     that should work for your café.                                   │   │
+│ │  🤖 Great! I've got a good picture of what you need.                 │   │
+│ │                                                                       │   │
+│ │     ┌─────────────────────────────────────────────┐                  │   │
+│ │     │  How well we know you: ████████░░ 78%      │                  │   │
+│ │     └─────────────────────────────────────────────┘                  │   │
 │ │                                                                       │   │
 │ │     These are human-picked—our team watches hundreds of               │   │
 │ │     videos and pulls out what's actually working.                     │   │
 │ │                                                                       │   │
 │ │     [Show me what you've got →]                                      │   │
 │ │                                                                       │   │
+│ │     ────────────────────────────────────────────                     │   │
+│ │                                                                       │   │
+│ │     💡 Come back anytime to chat more about your brand               │   │
+│ │        or if your direction changes.                                  │   │
+│ │                                                                       │   │
 │ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
 │ PROFILE DATA STORED:                                                         │
 │ • business_type: "café"                                                     │
 │ • team_size: "duo"                                                          │
-│ • content_experience: "occasional"                                          │
-│ • tone_preference: "funny"                                                  │
+│ • content_experience: "occasional" (or inferred from posting frequency)     │
+│ • tone_preference: "funny" (or inferred from content analysis)              │
 │ • camera_comfort: "fine"                                                    │
-│ • social_links: [optional]                                                  │
-│ • inferred_attributes: [from social analysis if provided]                   │
+│ • social_links: { tiktok: "@handle", instagram: "@handle" }                │
+│ • social_analysis: { bio, followers, style, energy, hashtags }             │
+│ • profile_completeness: 78 (0-100 score)                                   │
+│                                                                              │
+│ PROFILE COMPLETENESS FACTORS:                                                │
+│ • Basic info (business type, team size): +30%                              │
+│ • Social sync completed: +25%                                               │
+│ • Tone/style confirmed: +15%                                                │
+│ • Goals discussed: +15%                                                     │
+│ • Constraints specified: +15%                                               │
 │                                                                              │
 │ NAVIGATION:                                                                  │
-│ → Click CTA → Go to Flow 2 (Recommendations)                               │
+│ → Click CTA → Go to Flow 2 (Dashboard)                                     │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -207,66 +259,118 @@ This is the **foundation** of the recommendation system. No meaningful recommend
 | Field | Type | How Collected |
 |-------|------|---------------|
 | business_type | enum | Direct question |
-| team_size | enum | Direct question |
-| content_experience | enum | Direct question |
-| tone_preference | enum | Direct question |
+| team_size | enum | Direct question or inferred from socials |
+| content_experience | enum | Direct question or inferred from posting frequency |
+| tone_preference | enum | Direct question or inferred from content analysis |
 | camera_comfort | enum | Direct question |
-| social_links | array | Optional input |
-| inferred_tone | string | AI analysis of socials |
 | location | string | Auto-detected (IP) |
+
+**Social Sync Fields** (when TikTok/IG provided):
+
+| Field | Type | How Collected |
+|-------|------|---------------|
+| social_links.tiktok | string | User input |
+| social_links.instagram | string | User input |
+| social_analysis.bio | string | Scraped from profile |
+| social_analysis.followers | number | Scraped from profile |
+| social_analysis.posting_frequency | enum | Calculated from recent posts |
+| social_analysis.content_style | string[] | AI analysis of posts |
+| social_analysis.humor_type | string | AI analysis of posts |
+| social_analysis.energy_level | enum | AI analysis of posts |
+| social_analysis.hashtag_patterns | string[] | Extracted from posts |
+| profile_completeness | number | Calculated 0-100 |
 
 ---
 
-## 2. Profile → Recommendations
+## 2. Profile → Dashboard
 
-**Goal**: Show personalized concepts based on profile
+**Goal**: Show personalized dashboard with curated rows, scarcity cues, and quick refinement
 
 ### Steps
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STEP 1: Recommendations Page Load                                            │
+│ STEP 1: Dashboard Page Load                                                  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │ URL: /for-you                                                               │
 │ REQUIRES: Completed profile                                                  │
 │                                                                              │
-│ PERSONALIZED HEADER:                                                         │
+│ DASHBOARD HEADER:                                                            │
 │ ┌───────────────────────────────────────────────────────────────────────┐   │
-│ │  Concepts for [Business Name]'s café                                  │   │
-│ │  [Update preferences]                                                 │   │
+│ │                                                                       │   │
+│ │  Concepts for your café                     [👤 Profile] [💬 Chat]   │   │
+│ │                                                                       │   │
+│ │  How well we know you: ████████░░ 78%       [Improve this]           │   │
+│ │                                                                       │   │
 │ └───────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
-│ CONCEPT GRID (Primary Content):                                              │
+│ MINI CHAT (collapsible, docked to corner):                                   │
+│ ┌─────────────────────────────────────┐                                     │
+│ │ 💬 Quick refinement                 │                                     │
+│ │ ─────────────────────────────────── │                                     │
+│ │ "Show me stuff for a product launch"│                                     │
+│ │                        [Send]       │                                     │
+│ └─────────────────────────────────────┘                                     │
 │                                                                              │
-│ Each card shows:                                                             │
-│ ┌─────────────────────────────────────────┐                                 │
-│ │ 🇺🇸 [Origin flag]                       │                                 │
-│ │                                         │                                 │
-│ │ "Employee dreads telling kitchen        │                                 │
-│ │  about a mistake—gets calm response"    │ ← Headline                      │
-│ │                                         │                                 │
-│ │ 🔥🔥🔥○○ Trending                        │ ← Trend lifecycle               │
-│ │                                         │                                 │
-│ │ 94% match for your café                 │ ← Match score (primary)         │
-│ │                                         │                                 │
-│ │ 👥 1-2  ⏱ 15 min  Easy                  │ ← Difficulty signals            │
-│ │                                         │                                 │
-│ │ $24                                     │ ← Price                         │
-│ └─────────────────────────────────────────┘                                 │
+│ Purpose: Quick context without leaving dashboard                            │
+│ Examples:                                                                    │
+│ • "Looking for something edgier today"                                      │
+│ • "I want to promote our new menu item"                                     │
+│ • "Show me what works in winter"                                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: Dashboard Rows (Personalized, Not Generic Browse)                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ ROW 1: "Top matches for you"                                                │
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │                                                                         │ │
+│ │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │ │
+│ │  │ 94% match   │  │ 91% match   │  │ 89% match   │  │ 87% match   │    │ │
+│ │  │             │  │             │  │             │  │             │    │ │
+│ │  │ "Employee   │  │ "Customer   │  │ "Behind the │  │ "Day in the │    │ │
+│ │  │ dreads..."  │  │ tries to..."│  │ scenes..."  │  │ life..."    │    │ │
+│ │  │             │  │             │  │             │  │             │    │ │
+│ │  │ Easy • $24  │  │ Easy • $22  │  │ Med • $26   │  │ Easy • $21  │    │ │
+│ │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘    │ │
+│ │                                                                         │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                              │
+│ ROW 2: "Still fresh—not overdone yet" (scarcity cue)                        │
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │  🔥 NEW  ┌─────────────┐  🔥 NEW  ┌─────────────┐  ┌─────────────┐     │ │
+│ │         │ 82% match   │          │ 79% match   │  │ 76% match   │     │ │
+│ │         │ "Just drop- │          │ "POV: when  │  │ "The sound  │     │ │
+│ │         │ ped 2 days" │          │ a regular..." │ │ of closing" │     │ │
+│ │         └─────────────┘          └─────────────┘  └─────────────┘     │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                              │
+│ ROW 3: "Working in your country" (social proof)                             │
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │  🇺🇸  ┌─────────────┐  🇺🇸  ┌─────────────┐  🇺🇸  ┌─────────────┐      │ │
+│ │      │ 77% match   │       │ 74% match   │       │ 71% match   │      │ │
+│ │      │ "Trending   │       │ "Café owners│       │ "This one's │      │ │
+│ │      │ in US now"  │       │ are using"  │       │ blowing up" │      │ │
+│ │      └─────────────┘       └─────────────┘       └─────────────┘      │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                              │
+│ ROW 4: "Easy wins—film in 10 minutes"                                       │
+│ (filtered by difficulty + time)                                             │
+│                                                                              │
+│ SCARCITY & SOCIAL PROOF CUES:                                                │
+│ • "🔥 NEW" badge on concepts < 3 days old                                   │
+│ • "3 left in your area" when per_market_cap nearly reached                  │
+│ • "12 cafés bought this" (anonymized social proof)                          │
+│ • "Trending in [Country]" for geo-relevant concepts                         │
 │                                                                              │
 │ WHAT'S NOT SHOWN:                                                            │
 │ • No video preview or thumbnail                                             │
-│ • No detailed production requirements (yet)                                 │
-│                                                                              │
-│ SORTING:                                                                     │
-│ • Default: Match % (highest first)                                          │
-│ • Optional: Trending, Price, Difficulty                                     │
-│                                                                              │
-│ SECONDARY FILTERS (collapsed by default):                                    │
-│ • Difficulty: Easy / Medium / Needs practice                                │
-│ • People: 1 / 2 / 3+                                                        │
-│ • Purpose: Power users who want to fine-tune                                │
+│ • No "Browse all" or full catalog view                                      │
+│ • No infinite scroll—curated rows only                                      │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
                                    │
@@ -750,7 +854,7 @@ But this is **not prominently marketed** as a cashback system.
 
 ## 7. Return Visit
 
-**Goal**: Returning user accesses their concepts or finds new ones
+**Goal**: Returning user accesses their concepts, refines profile, or finds new ones
 
 ### Steps
 
@@ -763,14 +867,74 @@ But this is **not prominently marketed** as a cashback system.
 │ • Direct to homepage                                                        │
 │ • Direct to /my-concepts                                                    │
 │ • Direct to /for-you                                                        │
+│ • Direct to /profile                                                        │
 │                                                                              │
 │ IF LOGGED IN:                                                                │
-│ • Header shows: [For You] [My Concepts] [Account]                          │
+│ • Header shows: [For You] [My Concepts] [Profile]                          │
 │ • Profile data remembered                                                   │
 │                                                                              │
 │ IF SESSION EXPIRED:                                                          │
 │ • Prompt login                                                              │
 │ • Profile + purchases preserved after login                                 │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ STEP 1.5: Profile Page (Central Hub)                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ URL: /profile                                                               │
+│                                                                              │
+│ ┌───────────────────────────────────────────────────────────────────────┐   │
+│ │                                                                       │   │
+│ │  YOUR BRAND PROFILE                                                   │   │
+│ │                                                                       │   │
+│ │  ┌─────────────────────────────────────────────────────────────────┐  │   │
+│ │  │  How well we know you: ████████░░ 78%                          │  │   │
+│ │  │  [Chat to improve this →]                                       │  │   │
+│ │  └─────────────────────────────────────────────────────────────────┘  │   │
+│ │                                                                       │   │
+│ │  ─────────────────────────────────────────────────────────────────   │   │
+│ │                                                                       │   │
+│ │  CONNECTED ACCOUNTS                                                   │   │
+│ │  🔗 TikTok: @yourcafe ✓ Last synced 2 days ago [Resync]             │   │
+│ │  📷 Instagram: Not connected [Connect]                               │   │
+│ │                                                                       │   │
+│ │  ─────────────────────────────────────────────────────────────────   │   │
+│ │                                                                       │   │
+│ │  WHAT WE KNOW                                                         │   │
+│ │  • Business: Café in Austin                                          │   │
+│ │  • Vibe: Playful, casual                                             │   │
+│ │  • Team: Just you                                                    │   │
+│ │  • Experience: Posts a few times a week                              │   │
+│ │  [Edit manually]                                                     │   │
+│ │                                                                       │   │
+│ │  ─────────────────────────────────────────────────────────────────   │   │
+│ │                                                                       │   │
+│ │  CHAT WITH US                                                         │   │
+│ │  ┌─────────────────────────────────────────────────────────────────┐  │   │
+│ │  │  💬 "Tell me about a new direction, goal, or constraint"       │  │   │
+│ │  │                                                                 │  │   │
+│ │  │  [Start chat →]                                                │  │   │
+│ │  └─────────────────────────────────────────────────────────────────┘  │   │
+│ │                                                                       │   │
+│ │  ─────────────────────────────────────────────────────────────────   │   │
+│ │                                                                       │   │
+│ │  PREVIOUS PURCHASES                                 [View all →]     │   │
+│ │  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐            │   │
+│ │  │ "Employee..." │  │ "Customer..." │  │ "Behind..."   │            │   │
+│ │  │ Jan 1, 2026   │  │ Dec 28, 2025  │  │ Dec 15, 2025  │            │   │
+│ │  └───────────────┘  └───────────────┘  └───────────────┘            │   │
+│ │                                                                       │   │
+│ └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│ PROFILE PAGE PURPOSE:                                                        │
+│ • Central hub for brand identity                                            │
+│ • Encourages profile growth via "How well we know you" meter                │
+│ • Easy access to ongoing chat                                               │
+│ • Social account management                                                 │
+│ • Quick access to purchases                                                 │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
                                    │
@@ -962,11 +1126,15 @@ But this is **not prominently marketed** as a cashback system.
 ```
 
 Key changes from original:
-- **Onboarding chat** added before any meaningful browsing
-- **For You** replaces browse (recommendation-first)
+- **TikTok/IG sync** for automatic brand profiling
+- **"How well we know you"** meter encourages profile growth
+- **Personalized dashboard** with rows + scarcity cues (not generic browse)
+- **Mini-chat on dashboard** for quick context refinement
+- **Ongoing chat** - "come back anytime" to update direction
+- **Profile page** as central hub for brand identity
 - **No video preview** anywhere pre-purchase
 - **Submit** is subtle/optional, not prominent cashback flow
 
 ---
 
-*This document defines all user flows for letrend. Revised based on owner input.*
+*This document defines all user flows for letrend. Revised based on owner input (Outline.md).*

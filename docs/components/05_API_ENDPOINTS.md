@@ -53,7 +53,10 @@ The new marketplace endpoints consume data from existing endpoints—they don't 
 |----------|--------|---------|
 | `/api/profile` | GET, PUT | Get/update user profile |
 | `/api/profile/onboarding` | POST | AI chat onboarding |
+| `/api/profile/social-sync` | POST | Connect TikTok/IG for brand profiling |
+| `/api/profile/resync` | POST | Re-analyze connected social account |
 | `/api/recommendations` | GET | Get personalized recommendations |
+| `/api/recommendations/refine` | POST | Mini-chat refinement |
 | `/api/concepts/:id` | GET | Get concept details |
 | `/api/concepts/:id/viewer` | GET | Get viewer data (purchased only) |
 | `/api/concepts/:id/purchase` | POST | Purchase concept |
@@ -291,6 +294,174 @@ interface OnboardingResponse {
   next_prompt?: string;            // Suggested next question
 }
 ```
+
+### POST `/api/profile/social-sync`
+
+Connect TikTok or Instagram account for automatic brand profiling.
+
+**Authentication**: Required
+
+**Request Body**:
+```typescript
+interface SocialSyncRequest {
+  platform: 'tiktok' | 'instagram';
+  handle: string;              // @handle or full URL
+}
+```
+
+**Response**:
+```typescript
+interface SocialSyncResponse {
+  success: boolean;
+  profile_updates: {
+    socialLinks: {
+      tiktok?: string;
+      instagram?: string;
+    };
+    socialAnalysis: SocialAnalysis;
+  };
+  profile_completeness: number;  // Updated 0-100 score
+  inferred_data: {
+    businessType?: string;
+    teamSize?: string;
+    toneStyle?: string[];
+    contentExperience?: string;
+  };
+}
+
+interface SocialAnalysis {
+  platform: 'tiktok' | 'instagram';
+  analyzedAt: string;
+  bio: string;
+  followers: number;
+  postingFrequency: 'rarely' | 'occasionally' | 'regularly' | 'daily';
+  contentStyle: string[];         // ["behind-the-scenes", "quick-humor"]
+  humorType?: string;             // "playful", "dry", "physical"
+  energyLevel: 'low' | 'medium' | 'high';
+  hashtagPatterns: string[];      // Common hashtags used
+  inferredTone: string;           // "casual", "professional", "edgy"
+  inferredTeamSize: 'solo' | 'duo' | 'small-team' | 'large-team';
+}
+```
+
+**Example Response**:
+```json
+{
+  "success": true,
+  "profile_updates": {
+    "socialLinks": {
+      "tiktok": "@austincoffee"
+    },
+    "socialAnalysis": {
+      "platform": "tiktok",
+      "analyzedAt": "2025-12-03T10:00:00Z",
+      "bio": "☕ Best coffee in Austin | Open 7am-6pm",
+      "followers": 2400,
+      "postingFrequency": "occasionally",
+      "contentStyle": ["behind-the-scenes", "product-showcase"],
+      "humorType": "playful",
+      "energyLevel": "medium",
+      "hashtagPatterns": ["#austincoffee", "#localcafe", "#coffeeshop"],
+      "inferredTone": "casual",
+      "inferredTeamSize": "duo"
+    }
+  },
+  "profile_completeness": 75,
+  "inferred_data": {
+    "businessType": "Coffee shop",
+    "teamSize": "Small team (2-3)",
+    "toneStyle": ["casual", "playful"],
+    "contentExperience": "Some experience"
+  }
+}
+```
+
+**Error Responses**:
+```typescript
+// 400 Bad Request - Invalid handle
+{ "error": "BAD_REQUEST", "message": "Could not find account @invalid_handle" }
+
+// 400 Bad Request - Private account
+{ "error": "BAD_REQUEST", "message": "Account is private - unable to analyze" }
+
+// 429 Rate Limited - Too many syncs
+{ "error": "RATE_LIMITED", "message": "Please wait before syncing again" }
+```
+
+---
+
+### POST `/api/profile/resync`
+
+Re-analyze a connected social account to update profile data.
+
+**Authentication**: Required
+
+**Request Body**:
+```typescript
+interface ResyncRequest {
+  platform: 'tiktok' | 'instagram';
+}
+```
+
+**Response**: Same as `SocialSyncResponse`
+
+**Notes**:
+- Can be called to refresh stale data
+- Rate limited to once per 24 hours per platform
+- Updates profile completeness score
+
+---
+
+### POST `/api/recommendations/refine`
+
+Refine recommendations via mini-chat without full onboarding.
+
+**Authentication**: Required
+
+**Request Body**:
+```typescript
+interface RefineRequest {
+  message: string;               // User's refinement message
+  context?: {
+    currentPage: 'dashboard' | 'concept-detail';
+    conceptId?: string;          // If viewing specific concept
+  };
+}
+```
+
+**Response**:
+```typescript
+interface RefineResponse {
+  response: string;              // AI acknowledgment
+  filters_applied?: {
+    difficulty?: 'easy' | 'medium' | 'advanced';
+    peopleNeeded?: number;
+    industry?: string[];
+  };
+  profile_updates?: Partial<UserProfile>;
+  refresh_recommendations: boolean;
+}
+```
+
+**Example Flow**:
+```json
+// Request
+{
+  "message": "Show me easier stuff",
+  "context": { "currentPage": "dashboard" }
+}
+
+// Response
+{
+  "response": "Got it - filtering for easy-to-film concepts",
+  "filters_applied": {
+    "difficulty": "easy"
+  },
+  "refresh_recommendations": true
+}
+```
+
+---
 
 ### GET `/api/recommendations`
 

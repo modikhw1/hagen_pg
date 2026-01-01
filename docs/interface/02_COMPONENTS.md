@@ -10,8 +10,10 @@
 
 1. **No video preview** - The concept is the product; no visual reveal until purchase
 2. **Plain language** - No jargon, no technical scales, speak to mid/low tech comfort users
-3. **Recommendation-first** - Match scores and personalization are primary
+3. **Personalized dashboard** - Curated rows with match scores, scarcity cues, mini-chat
 4. **Human-curated feel** - Not algorithmic, not marketplace-like
+5. **Social sync** - TikTok/IG integration for automatic brand profiling
+6. **Profile growth** - "How well we know you" meter encourages ongoing refinement
 
 ---
 
@@ -20,7 +22,9 @@
 | Category | Components |
 |----------|------------|
 | [Navigation](#navigation) | Header, Footer, Breadcrumbs |
+| [Dashboard](#dashboard) | DashboardRow, MiniChat, ScarcityBadge |
 | [Cards](#cards) | ConceptCard, OwnedConceptCard |
+| [Profile](#profile) | ProfileMeter, SocialSync, ProfilePage |
 | [Recommendations](#recommendations) | MatchScore, TrendLifecycle, DifficultyBadge |
 | [Onboarding](#onboarding) | OnboardingChat, QuickSelect, ProfileStatus |
 | [Video](#video) | VideoPlayer, SubtitleOverlay |
@@ -115,6 +119,230 @@
 **Behavior:**
 - Each segment clickable
 - Truncate long headlines: "Employee dreads telling kit..." (max 35 chars)
+
+---
+
+## Dashboard
+
+### DashboardRow
+
+**Purpose**: Horizontal row of concept cards with category label
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ "Top matches for you"                                        [See all →]   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │ 94% match   │  │ 91% match   │  │ 89% match   │  │ 87% match   │  →     │
+│  │ "Employee..." │  │ "Customer..." │  │ "Behind..." │  │ "Day in..." │      │
+│  │ Easy • $24  │  │ Easy • $22  │  │ Med • $26   │  │ Easy • $21  │        │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Row Types:**
+| Type | Label | Filter Logic |
+|------|-------|--------------|
+| Top Matches | "Top matches for you" | Sorted by match % |
+| Fresh | "Still fresh—not overdone yet" | concepts < 3 days old |
+| Local | "Working in your country" | Trending in user's geo |
+| Easy Wins | "Easy wins—film in 10 minutes" | Easy difficulty + short time |
+
+**Behavior:**
+- Horizontal scroll on mobile
+- Arrow buttons on desktop
+- "See all" expands to filtered view
+- 4-6 cards per row
+
+---
+
+### MiniChat
+
+**Purpose**: Quick refinement without leaving dashboard
+
+```
+┌─────────────────────────────────────┐
+│ 💬 Quick refinement           [−]   │
+│ ─────────────────────────────────── │
+│                                     │
+│ "Show me stuff for a product launch"│
+│                                     │
+│                        [Send]       │
+└─────────────────────────────────────┘
+```
+
+**States:**
+| State | Display |
+|-------|---------|
+| Collapsed | Just icon + "Quick chat" |
+| Expanded | Text input + send |
+| Processing | Loading indicator |
+| Response | Dashboard refreshes with context |
+
+**Position:** Bottom-right corner, docked
+
+**Example inputs:**
+- "Looking for something edgier today"
+- "I want to promote our new menu item"
+- "Show me what works in winter"
+- "Only show me stuff I can film alone"
+
+**Behavior:**
+- Input refines current dashboard view
+- Context persists for session
+- Can be dismissed
+- Mobile: Full-width bottom sheet
+
+---
+
+### ScarcityBadge
+
+**Purpose**: Visual cues for urgency and social proof
+
+**Variants:**
+```
+🔥 NEW           ← concepts < 3 days old (orange)
+3 left           ← when per_market_cap nearly reached (red)
+12 cafés got this ← anonymized purchase count (blue)
+🇺🇸 Trending     ← geo-relevant (flag + label)
+```
+
+**Rules:**
+| Badge | When to Show |
+|-------|--------------|
+| 🔥 NEW | Concept created < 72 hours ago |
+| X left | available_count <= 3 |
+| X [type] got this | purchase_count >= 5, same industry |
+| 🇺🇸 Trending | Trending in user's country |
+
+**Styling:**
+- Small pill badges
+- Positioned top-left of card
+- Max 2 badges per card (prioritize scarcity)
+
+---
+
+## Profile
+
+### ProfileMeter
+
+**Purpose**: Show "How well we know you" score and encourage growth
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  How well we know you: ████████░░ 78%          [Improve this →]            │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Score Factors:**
+| Factor | Points |
+|--------|--------|
+| Basic info (business type, team size) | +30 |
+| Social sync completed | +25 |
+| Tone/style confirmed | +15 |
+| Goals discussed | +15 |
+| Constraints specified | +15 |
+
+**Visual:**
+- Progress bar with percentage
+- Color: Gray (0-40%), Yellow (40-70%), Green (70-100%)
+- "Improve this" links to chat
+
+**Behavior:**
+- Clicking opens profile chat
+- Updates in real-time as profile improves
+
+---
+
+### SocialSync
+
+**Purpose**: Connect and manage TikTok/Instagram accounts
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CONNECTED ACCOUNTS                                                          │
+│                                                                              │
+│ 🔗 TikTok: @yourcafe                                                        │
+│    ✓ Connected • Last synced 2 days ago              [Resync] [Disconnect] │
+│                                                                              │
+│ 📷 Instagram: Not connected                                                 │
+│    Connect to improve recommendations                       [Connect →]    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**States:**
+| Platform | State | Actions |
+|----------|-------|---------|
+| TikTok | Connected | [Resync] [Disconnect] |
+| TikTok | Not connected | [Connect →] |
+| Instagram | Connected | [Resync] [Disconnect] |
+| Instagram | Not connected | [Connect →] |
+
+**Sync Process:**
+1. User provides handle/URL
+2. System fetches public profile data
+3. Analysis runs on recent posts
+4. Profile updated with inferred attributes
+5. "Last synced X ago" shown
+
+**What We Analyze:**
+- Bio text
+- Follower count
+- Recent posts (style, humor, energy)
+- Posting frequency
+- Hashtag patterns
+
+---
+
+### ProfilePage
+
+**Purpose**: Central hub for brand identity management
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  YOUR BRAND PROFILE                                                         │
+│                                                                              │
+│  [ProfileMeter: ████████░░ 78%]                                            │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────     │
+│                                                                              │
+│  [SocialSync section]                                                       │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────     │
+│                                                                              │
+│  WHAT WE KNOW                                                               │
+│  • Business: Café in Austin                                                 │
+│  • Vibe: Playful, casual                                                    │
+│  • Team: Just you                                                           │
+│  • Experience: Posts a few times a week                                     │
+│  [Edit manually]                                                            │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────     │
+│                                                                              │
+│  CHAT WITH US                                                               │
+│  💬 "Tell me about a new direction, goal, or constraint"                   │
+│  [Start chat →]                                                            │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────     │
+│                                                                              │
+│  PREVIOUS PURCHASES                                        [View all →]    │
+│  [3 most recent purchase cards]                                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Sections:**
+1. ProfileMeter - with CTA to improve
+2. SocialSync - manage connected accounts
+3. What We Know - editable profile summary
+4. Chat With Us - ongoing conversation access
+5. Previous Purchases - quick access to owned concepts
+
+**URL:** /profile
 
 ---
 

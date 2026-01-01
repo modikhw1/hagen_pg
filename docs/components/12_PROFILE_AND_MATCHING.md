@@ -27,8 +27,30 @@ interface UserProfile {
   constraints: string[];          // ["Just me", "Limited budget"]
   industryTags: string[];         // ["food", "beverage", "local"]
   onboardingComplete: boolean;
+  profileCompleteness: number;    // 0-100 "How well we know you" meter
   createdAt: string;
   updatedAt: string;
+
+  // Social sync data
+  socialLinks: {
+    tiktok?: string;              // @handle or URL
+    instagram?: string;           // @handle or URL
+  };
+  socialAnalysis?: SocialAnalysis;
+}
+
+interface SocialAnalysis {
+  platform: 'tiktok' | 'instagram';
+  analyzedAt: string;
+  bio: string;
+  followers: number;
+  postingFrequency: 'rarely' | 'occasionally' | 'regularly' | 'daily';
+  contentStyle: string[];         // ["behind-the-scenes", "quick-humor"]
+  humorType?: string;             // "playful", "dry", "physical"
+  energyLevel: 'low' | 'medium' | 'high';
+  hashtagPatterns: string[];      // Common hashtags used
+  inferredTone: string;           // "casual", "professional", "edgy"
+  inferredTeamSize: 'solo' | 'duo' | 'small-team' | 'large-team';
 }
 ```
 
@@ -139,6 +161,88 @@ AI: Perfect! I've got a clear picture now:
 
     I'll find concepts that work for food businesses, can be filmed
     alone, and drive local traffic. Let's see what matches!
+```
+
+### 2.4 Ongoing Chat (Return Visits)
+
+After onboarding, users can return to refine their profile anytime. The chat maintains context and allows incremental updates.
+
+```typescript
+interface OngoingChatMessage {
+  role: 'assistant' | 'user';
+  content: string;
+  profileUpdates?: Partial<UserProfile>;
+  timestamp: string;
+}
+
+async function processOngoingChat(
+  userId: string,
+  message: string
+): Promise<{
+  response: string;
+  profileUpdates?: Partial<UserProfile>;
+  recommendationsAffected: boolean;
+}> {
+  // Load existing profile and conversation history
+  const profile = await getUserProfile(userId);
+  const history = profile.onboarding_conversation || [];
+
+  // Add user message
+  history.push({
+    role: 'user',
+    content: message,
+    timestamp: new Date().toISOString()
+  });
+
+  // Process with context
+  const aiResponse = await generateChatResponse(profile, history);
+  const profileUpdates = await extractProfileUpdates(aiResponse, profile);
+
+  // Determine if recommendations need refresh
+  const recommendationsAffected = Object.keys(profileUpdates || {}).some(
+    key => ['goals', 'constraints', 'industryTags'].includes(key)
+  );
+
+  return {
+    response: aiResponse.content,
+    profileUpdates,
+    recommendationsAffected
+  };
+}
+```
+
+**Sample Ongoing Chat**:
+```
+User: Actually, I hired someone last week. We're two people now.
+
+AI: Great news! I'll update your profile - you're no longer solo.
+    This opens up some concepts that work better with two people.
+    Want me to refresh your recommendations?
+
+User: Yes please
+
+AI: Done! I found 3 new concepts that work great with a duo.
+    Check out your dashboard - they're in "New for you".
+```
+
+**Mini-Chat (Dashboard Widget)**:
+
+Users can also refine context without leaving the dashboard:
+
+```typescript
+interface MiniChatRequest {
+  userId: string;
+  message: string;
+  context?: {
+    currentPage: 'dashboard' | 'concept-detail';
+    conceptId?: string;  // If viewing a specific concept
+  };
+}
+
+// Example mini-chat flow:
+// User on dashboard: "Show me easier stuff"
+// AI: "Got it - filtering for easy-to-film concepts"
+// Dashboard refreshes with difficulty filter applied
 ```
 
 ---

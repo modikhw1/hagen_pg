@@ -546,7 +546,7 @@ This makes concepts affordable relative to local income.
 
 ### 2.2 `user_profiles`
 
-User profiles built through AI onboarding chat, used for personalized recommendations.
+User profiles built through AI onboarding chat and social sync, used for personalized recommendations.
 
 ```sql
 CREATE TABLE user_profiles (
@@ -558,6 +558,12 @@ CREATE TABLE user_profiles (
   industry_tags text[],                       -- ["food", "retail", "local"]
   onboarding_complete boolean DEFAULT false,  -- Profile ready for matching?
   onboarding_conversation jsonb,              -- Chat history for context
+
+  -- Social sync data
+  social_links jsonb,                         -- {"tiktok": "@handle", "instagram": "@handle"}
+  social_analysis jsonb,                      -- Analyzed data from connected accounts
+  profile_completeness int DEFAULT 0,         -- 0-100 "How well we know you" meter
+
   created_at timestamp DEFAULT now(),
   updated_at timestamp DEFAULT now()
 );
@@ -566,6 +572,34 @@ CREATE TABLE user_profiles (
 CREATE INDEX idx_user_profiles_user ON user_profiles(user_id);
 CREATE INDEX idx_user_profiles_industry ON user_profiles USING GIN(industry_tags);
 CREATE INDEX idx_user_profiles_complete ON user_profiles(onboarding_complete);
+CREATE INDEX idx_user_profiles_completeness ON user_profiles(profile_completeness);
+```
+
+**Profile Completeness Calculation**:
+
+| Factor | Points |
+|--------|--------|
+| Basic info (business type, team size) | +30 |
+| Social sync completed | +25 |
+| Tone/style confirmed | +15 |
+| Goals discussed | +15 |
+| Constraints specified | +15 |
+
+**Social Analysis Schema**:
+```typescript
+interface SocialAnalysis {
+  platform: 'tiktok' | 'instagram';
+  analyzedAt: string;
+  bio: string;
+  followers: number;
+  postingFrequency: 'rarely' | 'occasionally' | 'regularly' | 'daily';
+  contentStyle: string[];         // ["behind-the-scenes", "quick-humor"]
+  humorType?: string;             // "playful", "dry", "physical"
+  energyLevel: 'low' | 'medium' | 'high';
+  hashtagPatterns: string[];      // Common hashtags used
+  inferredTone: string;           // "casual", "professional", "edgy"
+  inferredTeamSize: 'solo' | 'duo' | 'small-team' | 'large-team';
+}
 ```
 
 **Example Record**:
@@ -582,6 +616,24 @@ CREATE INDEX idx_user_profiles_complete ON user_profiles(onboarding_complete);
     {"role": "assistant", "content": "Tell me about your business..."},
     {"role": "user", "content": "I run a coffee shop in Austin..."}
   ],
+  "social_links": {
+    "tiktok": "@austincoffee",
+    "instagram": "@austin_coffee_co"
+  },
+  "social_analysis": {
+    "platform": "tiktok",
+    "analyzedAt": "2025-12-03T10:00:00Z",
+    "bio": "☕ Best coffee in Austin | Open 7am-6pm",
+    "followers": 2400,
+    "postingFrequency": "occasionally",
+    "contentStyle": ["behind-the-scenes", "product-showcase"],
+    "humorType": "playful",
+    "energyLevel": "medium",
+    "hashtagPatterns": ["#austincoffee", "#localcafe", "#coffeeshop"],
+    "inferredTone": "casual",
+    "inferredTeamSize": "duo"
+  },
+  "profile_completeness": 85,
   "created_at": "2025-12-03T10:00:00Z",
   "updated_at": "2025-12-03T10:15:00Z"
 }

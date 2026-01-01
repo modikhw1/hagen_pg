@@ -6,15 +6,21 @@
 
 ---
 
-## Core Principle: Recommendation Over Browsing
+## Core Principle: Personalized Dashboard
 
-letrend is **not a marketplace you browse**—it's a recommendation service that shows you what fits your business.
+letrend is **not a marketplace you browse**—it's a personalized dashboard that shows you what fits your business.
 
 The mental model:
 > "We watched hundreds of videos. Here's what we picked for cafés like yours."
 
 NOT:
 > "Browse 45 concepts, filter by industry..."
+
+Key elements:
+- **TikTok/IG sync** for automatic brand profiling
+- **"How well we know you"** meter encourages profile growth
+- **Curated rows** with match scores and scarcity cues
+- **Mini-chat** for quick refinement without leaving dashboard
 
 ---
 
@@ -46,13 +52,41 @@ Before showing recommendations, we need to know:
 | Data Point | How Collected | Why Needed |
 |------------|---------------|------------|
 | Business type | AI chat | Match to industry-appropriate concepts |
-| Team size | AI chat | Filter by people required |
+| Team size | AI chat or social sync | Filter by people required |
 | Comfort level | AI chat + inference | Show appropriate difficulty |
-| Tone preference | AI chat + social analysis | Match humor style |
-| Content history | AI chat | Calibrate expectations |
+| Tone preference | Social sync analysis | Match humor style |
+| Content history | Social sync analysis | Calibrate expectations |
 | Location/market | Auto-detect | PPP pricing, language |
 
-**Collection method**: Conversational AI chat (like the brand-profile system in hagen), not forms.
+### Social Sync (Primary Method)
+
+| Platform | Data Extracted | Used For |
+|----------|----------------|----------|
+| TikTok | Bio, followers, posts, frequency, hashtags | Auto-fill profile, infer tone/style |
+| Instagram | Bio, followers, posts, frequency | Backup/additional context |
+
+**What we analyze from connected accounts:**
+- Bio text → keywords, tone, positioning
+- Follower count → business size inference
+- Recent posts → content style, humor type, energy level
+- Posting frequency → content experience level
+- Hashtag patterns → industry, local focus
+
+**"How well we know you" meter (0-100):**
+
+| Factor | Points |
+|--------|--------|
+| Basic info (business type, team size) | +30 |
+| Social sync completed | +25 |
+| Tone/style confirmed | +15 |
+| Goals discussed | +15 |
+| Constraints specified | +15 |
+
+Users can improve their score by connecting socials or chatting more.
+
+**Collection methods:**
+1. **Social sync** (preferred): "Drop your TikTok link and I'll figure out your vibe"
+2. **AI chat** (fallback): Conversational questions for users without socials
 
 ---
 
