@@ -1,14 +1,28 @@
-# letrend
+# LeTrend
 
 > Proven video concepts for your business's social media.
 
-**letrend** is a personalized dashboard that helps small businesses discover and recreate viral TikTok concepts. We watch hundreds of videos and pick the ones that fit your business—so you don't have to.
+**LeTrend** is a personalized dashboard that helps small businesses discover and recreate viral TikTok concepts. We watch hundreds of videos and pick the ones that fit your business—so you don't have to.
 
 ---
 
-## What is letrend?
+## Quick Start
 
-Most small business owners know they should be on TikTok, but don't know what to post. letrend solves this by:
+```bash
+cd app
+npm install
+npm run dev
+```
+
+Visit:
+- http://localhost:3000/dashboard-1 — Original dashboard (profile meter, concept rows)
+- http://localhost:3000/dashboard-2 — LeTrend dashboard (profile tokens, vibe pills, AI chat)
+
+---
+
+## What is LeTrend?
+
+Most small business owners know they should be on TikTok, but don't know what to post. LeTrend solves this by:
 
 1. **Analyzing viral concepts** - We identify replicable video formats from around the world
 2. **Matching to your business** - AI-powered matching based on your profile, tone, and constraints
@@ -18,16 +32,45 @@ Most small business owners know they should be on TikTok, but don't know what to
 
 ---
 
+## App Routes
+
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page |
+| `/start` | Onboarding flow |
+| `/dashboard-1` | Original dashboard layout |
+| `/dashboard-2` | LeTrend dashboard (new design) |
+| `/concept/[id]` | Concept detail page |
+| `/checkout/[id]` | Purchase flow |
+| `/viewer/[id]` | Post-purchase concept viewer |
+| `/my-concepts` | User's purchased concepts |
+| `/profile` | User profile page |
+
+---
+
 ## Key Features
 
 | Feature | Description |
 |---------|-------------|
-| **Social Sync** | Connect TikTok/Instagram for automatic brand profiling |
+| **Profile Tokens** | Inline editable business profile (type, location, humor style) |
+| **Pick For Me** | AI-powered concept recommendation |
+| **Working Right Now** | Concepts with proven success rates from users |
+| **Browse by Vibe** | Filter concepts by mood/category |
+| **AI Chat** | Paste TikTok links or describe what you want |
 | **Match Percentage** | Every concept shows how well it fits your business (0-100%) |
-| **Profile Completeness** | "How well we know you" meter encourages profile growth |
-| **Curated Rows** | Top Matches, Fresh This Week, Easy Wins, Local Favorites |
-| **Mini-Chat** | Quick refinement without leaving the dashboard |
-| **Plain Language** | "Easy to film" not "Shot complexity: 3/10" |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 16, React 19, TypeScript |
+| UI Components | Mantine UI v8 |
+| Styling | Tailwind CSS v4 |
+| Icons | Tabler Icons |
+| Backend | Supabase (PostgreSQL) |
+| AI Analysis | Gemini 2.0 Flash |
 
 ---
 
