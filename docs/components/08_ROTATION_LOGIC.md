@@ -1,14 +1,20 @@
 # Component 08: Rotation Logic Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: 72-Hour Rotation and Archival System  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: 72-Hour Rotation and Archival System
+> **Last Updated**: January 1, 2026
 
 ---
 
 ## Overview
 
 The rotation logic manages the 72-hour listing windows, ensuring fresh catalog while preventing stale listings. This creates urgency for buyers and prevents the marketplace from becoming cluttered.
+
+### Recommendations-First Model
+
+> **Important**: The customer interface uses a **recommendations-first** approach. Users don't browse a catalog directly - they receive personalized recommendations based on their profile. The rotation logic still applies, but concepts are surfaced through the recommendations API rather than a browse interface.
+>
+> See [Interface Documentation](../interface/README.md) for user-facing patterns.
 
 ---
 

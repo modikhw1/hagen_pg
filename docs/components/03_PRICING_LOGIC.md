@@ -1,69 +1,47 @@
 # Component 03: Pricing Logic Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: Pricing Logic  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: Pricing Logic
+> **Last Updated**: January 1, 2026
 
 ---
 
 ## Overview
 
-This document provides exhaustive detail on how concept prices are calculated, including virality scoring, purchasing power adjustment, agent modifiers, and the cashback premium.
+This document provides exhaustive detail on how concept prices are calculated, including match percentage scoring, purchasing power adjustment, and the cashback system.
 
 ---
 
 ## 0. Pricing Design Rationale
 
-### Budget Context
+### Target Price Range
 
-From chat discussion: The owner specified a **$100-1000 budget** range for MVP development, which influenced these pricing decisions:
+Owner specification: **$20-30 USD** for the US market, with PPP adjustment for other markets.
 
-- **Low base price ($5)**: Accessible entry point for emerging markets
-- **Simple multiplier model**: Easy to implement without complex ML pricing
-- **PPP adjustment**: Essential for cross-border marketplace viability
-- **12% cashback premium**: Self-funding feedback loop without external capital
+- **US market**: $20-30 per concept
+- **Other markets**: PPP-adjusted (can be lower)
+- **Simple model**: Match % drives the $10 variance within the range
 
 ### Why These Specific Values?
 
 | Decision | Value | Rationale |
 |----------|-------|-----------|
-| Base price | $5 | Low enough for any market after PPP adjustment; high enough to feel "worth something" |
-| Virality multiplier | $5 | A "perfect 10" concept costs $55 USD base, which feels premium but not absurd |
-| Cashback premium | 12% | Funds 10-15% cashback with margin for payment processing fees (~3%) |
-| Max agent modifier | ±20% | Enough flexibility for local context without creating arbitrage opportunities |
-| Price floor | $1 | Below this, transaction fees dominate |
-| Price ceiling | $500 | Above this, buyers would expect more than a concept |
+| Base price | $20 USD | Minimum price in US market - feels substantial for a concept |
+| Match bonus cap | $10 | Maximum addition for high-match concepts ($20 + $10 = $30) |
+| Price floor | $5 | Below this, transaction fees dominate (after PPP) |
+| Price ceiling | $100 | Above this, buyers would expect more than a concept |
 
-### Cashback Premium Math
+### Cashback System
+
+The cashback system exists to incentivize buyers to produce content and provide feedback data. It is **de-emphasized in the UI** (footnote level: "Film it → get some back") but the backend logic remains:
 
 ```
-Revenue needed per transaction to fund 10-15% cashback:
-
-If buyer pays $11.20 (includes 12% premium on $10 base):
-- Premium collected: $1.20
-- Cashback paid: $1.00-$1.50 (10-15% of $10)
-- Net margin: -$0.30 to +$0.20
-
-At scale, high performers (who claim cashback) subsidized by low performers (who don't claim).
-Typical cashback claim rate: 30-50% expected
-Effective cost: 3-7.5% of transaction value
-12% premium covers this with margin.
+Cashback mechanics:
+- Built into pricing (not a separate premium)
+- ~10% of purchase price returned when buyer submits produced content
+- Primary purpose: Collect feedback data, not as a sales incentive
+- UI treatment: Subtle mention, not a headline feature
 ```
-
-### Connection to Model Confidence
-
-**Open question**: Should low-confidence predictions affect pricing?
-
-Two approaches considered:
-1. **Confidence discount**: If model confidence < 0.5, reduce virality multiplier by 50%
-   - Pro: Honest pricing when model is uncertain
-   - Con: Penalizes novel content that doesn't match training data
-
-2. **Separate display**: Show virality score AND confidence separately, don't affect price
-   - Pro: Full information for buyer to decide
-   - Con: More cognitive load
-
-**Current decision**: Approach 2 (display both, don't adjust price). Can revisit at 500+ ratings when model is more stable.
 
 ---
 
@@ -72,22 +50,30 @@ Two approaches considered:
 ### Complete Formula
 
 ```
-listed_price = ((base_price + (virality_score × virality_multiplier)) 
-                × purchasing_power_index 
-                × (1 + agent_modifier)) 
-               × (1 + cashback_premium)
+listed_price = (base_price + (match_percentage / 100 × match_bonus)) × purchasing_power_index
 ```
 
 ### Component Breakdown
 
 | Component | Default Value | Range | Purpose |
 |-----------|---------------|-------|---------|
-| `base_price` | $5 USD | $5-$20 | Minimum viable price |
-| `virality_score` | Model output | 0-10 | Predicted value of concept |
-| `virality_multiplier` | $5 | $3-$10 | How much each virality point adds |
-| `purchasing_power_index` | Market-specific | 0.1-1.0 | Regional affordability |
-| `agent_modifier` | 0 | -0.2 to +0.2 | Local market knowledge |
-| `cashback_premium` | 0.12 (12%) | 0.10-0.15 | Funds the cashback incentive |
+| `base_price` | $20 USD | Fixed | Minimum price in US market |
+| `match_percentage` | Model output | 0-100 | How well concept fits buyer's profile |
+| `match_bonus` | $10 USD | Fixed | Maximum addition for perfect match |
+| `purchasing_power_index` | Market-specific | 0.18-1.0 | Regional affordability |
+
+### Match Percentage
+
+**Match %** is the user-facing metric that replaces the internal virality score. It's a composite score (0-100) combining:
+
+1. **Relative like-ratio** (virality potential)
+2. **Easy to replicate** (production feasibility)
+3. **Creativity** (uniqueness)
+4. **Recency of upload** (freshness)
+5. **Cultural reach** (cross-market potential)
+6. **Customer fit** (goals/taste alignment) ← Personalization factor
+
+The model outputs match % directly based on the user's profile and the concept's characteristics.
 
 ---
 
@@ -157,34 +143,26 @@ We use **0.8× the standard PPP ratio** for emerging markets to account for:
 ```typescript
 interface PricingConfig {
   // Base configuration
-  basePrice: number;           // Default: 5
-  viralityMultiplier: number;  // Default: 5
-  cashbackPremium: number;     // Default: 0.12
-  
+  basePrice: number;           // Default: 20 (USD)
+  matchBonus: number;          // Default: 10 (USD)
+
   // Constraints
-  minPrice: number;            // Default: 1.00
-  maxPrice: number;            // Default: 500.00
-  maxAgentModifier: number;    // Default: 0.20
+  minPrice: number;            // Default: 5.00
+  maxPrice: number;            // Default: 100.00
 }
 
 interface PricingInput {
-  viralityScore: number;          // 0-10 from model
+  matchPercentage: number;        // 0-100 from model
   purchasingPowerIndex: number;   // From market_contexts
-  agentModifier?: number;         // Optional ±20% adjustment
-  modelConfidence?: number;       // 0-1, displayed but doesn't affect price
   config?: Partial<PricingConfig>;
 }
 
 interface PricingOutput {
-  basePrice: number;              // Before any adjustments
-  viralityAdjusted: number;       // After virality
-  pppAdjusted: number;            // After PPP
-  agentAdjusted: number;          // After agent modifier
-  listedPrice: number;            // Final price with premium
-  cashbackAmount: number;         // What buyer gets back (10-15%)
-  cashbackMinimum: number;        // 10% of pre-premium price
-  cashbackMaximum: number;        // 15% of pre-premium price
-  modelConfidence: number;        // Pass-through for display
+  basePrice: number;              // Before PPP ($20 USD)
+  matchBonus: number;             // Bonus from match % (up to $10)
+  prePPPPrice: number;            // base + bonus ($20-30 USD)
+  listedPrice: number;            // After PPP adjustment
+  cashbackAmount: number;         // ~10% of listed price
   breakdown: PricingBreakdown;    // Detailed calculation
 }
 
@@ -201,20 +179,18 @@ interface PricingBreakdown {
 
 ```typescript
 const DEFAULT_CONFIG: PricingConfig = {
-  basePrice: 5,
-  viralityMultiplier: 5,
-  cashbackPremium: 0.12,
-  minPrice: 1.00,
-  maxPrice: 500.00,
-  maxAgentModifier: 0.20
+  basePrice: 20,
+  matchBonus: 10,
+  minPrice: 5.00,
+  maxPrice: 100.00
 };
 
 function calculatePrice(input: PricingInput): PricingOutput {
   const config = { ...DEFAULT_CONFIG, ...input.config };
-  const { viralityScore, purchasingPowerIndex, agentModifier = 0, modelConfidence = 0.5 } = input;
-  
+  const { matchPercentage, purchasingPowerIndex } = input;
+
   const steps: PricingBreakdown['steps'] = [];
-  
+
   // Step 1: Base price
   const basePrice = config.basePrice;
   steps.push({
@@ -222,76 +198,49 @@ function calculatePrice(input: PricingInput): PricingOutput {
     value: basePrice,
     explanation: `Starting point: $${basePrice.toFixed(2)}`
   });
-  
-  // Step 2: Virality adjustment
-  const viralityBonus = viralityScore * config.viralityMultiplier;
-  const viralityAdjusted = basePrice + viralityBonus;
+
+  // Step 2: Match bonus (0-100% → $0-10)
+  const matchBonusAmount = (matchPercentage / 100) * config.matchBonus;
+  const prePPPPrice = basePrice + matchBonusAmount;
   steps.push({
-    step: 'Virality Adjustment',
-    value: viralityAdjusted,
-    explanation: `${viralityScore.toFixed(1)} × $${config.viralityMultiplier} = +$${viralityBonus.toFixed(2)}`
+    step: 'Match Bonus',
+    value: prePPPPrice,
+    explanation: `${matchPercentage}% match = +$${matchBonusAmount.toFixed(2)} → $${prePPPPrice.toFixed(2)}`
   });
-  
+
   // Step 3: PPP adjustment
-  const pppAdjusted = viralityAdjusted * purchasingPowerIndex;
+  const pppAdjusted = prePPPPrice * purchasingPowerIndex;
   steps.push({
     step: 'PPP Adjustment',
     value: pppAdjusted,
-    explanation: `$${viralityAdjusted.toFixed(2)} × ${purchasingPowerIndex.toFixed(2)} PPP = $${pppAdjusted.toFixed(2)}`
+    explanation: `$${prePPPPrice.toFixed(2)} × ${purchasingPowerIndex.toFixed(2)} PPP = $${pppAdjusted.toFixed(2)}`
   });
-  
-  // Step 4: Agent modifier (clamped)
-  const clampedModifier = Math.max(
-    -config.maxAgentModifier, 
-    Math.min(config.maxAgentModifier, agentModifier)
-  );
-  const agentAdjusted = pppAdjusted * (1 + clampedModifier);
-  steps.push({
-    step: 'Agent Modifier',
-    value: agentAdjusted,
-    explanation: `$${pppAdjusted.toFixed(2)} × ${(1 + clampedModifier).toFixed(2)} = $${agentAdjusted.toFixed(2)}`
-  });
-  
-  // Step 5: Cashback premium
-  const withPremium = agentAdjusted * (1 + config.cashbackPremium);
-  steps.push({
-    step: 'Cashback Premium',
-    value: withPremium,
-    explanation: `$${agentAdjusted.toFixed(2)} × ${(1 + config.cashbackPremium).toFixed(2)} = $${withPremium.toFixed(2)}`
-  });
-  
-  // Step 6: Clamp to min/max
+
+  // Step 4: Clamp to min/max
   const listedPrice = Math.max(
     config.minPrice,
-    Math.min(config.maxPrice, Math.round(withPremium * 100) / 100)
+    Math.min(config.maxPrice, Math.round(pppAdjusted * 100) / 100)
   );
-  
-  if (listedPrice !== withPremium) {
+
+  if (listedPrice !== Math.round(pppAdjusted * 100) / 100) {
     steps.push({
       step: 'Price Clamping',
       value: listedPrice,
       explanation: `Clamped to $${config.minPrice}-$${config.maxPrice} range`
     });
   }
-  
-  // Calculate cashback
-  const cashbackAmount = Math.round(listedPrice * (config.cashbackPremium / (1 + config.cashbackPremium)) * 100) / 100;
-  
+
+  // Calculate cashback (~10% of listed price)
+  const cashbackAmount = Math.round(listedPrice * 0.10 * 100) / 100;
+
   return {
     basePrice,
-    viralityAdjusted,
-    pppAdjusted,
-    agentAdjusted,
+    matchBonus: matchBonusAmount,
+    prePPPPrice,
     listedPrice,
     cashbackAmount,
     breakdown: { steps }
   };
-}
-
-function calculateCashback(pricePaid: number, premium: number = 0.12): number {
-  // Cashback is the premium portion of the price
-  // If price = base × 1.12, then cashback = price × (0.12/1.12) = price × 0.107
-  return Math.round(pricePaid * (premium / (1 + premium)) * 100) / 100;
 }
 ```
 
@@ -299,179 +248,159 @@ function calculateCashback(pricePaid: number, premium: number = 0.12): number {
 
 ## 3. Example Calculations
 
-### Example 1: High-Virality Concept in US Market
+### Example 1: High-Match Concept in US Market
 
 ```
 Input:
-  - virality_score: 8.5
+  - match_percentage: 94%
   - purchasing_power_index: 1.0 (US)
-  - agent_modifier: 0 (no adjustment)
 
 Calculation:
-  1. Base: $5.00
-  2. Virality: $5 + (8.5 × $5) = $5 + $42.50 = $47.50
-  3. PPP: $47.50 × 1.0 = $47.50
-  4. Agent: $47.50 × 1.0 = $47.50
-  5. Premium: $47.50 × 1.12 = $53.20
+  1. Base: $20.00
+  2. Match bonus: 94% × $10 = $9.40
+  3. Pre-PPP: $20 + $9.40 = $29.40
+  4. PPP: $29.40 × 1.0 = $29.40
 
 Output:
-  - listed_price: $53.20
-  - cashback_amount: $5.70
+  - listed_price: $29.40
+  - cashback_amount: $2.94
 ```
 
 ### Example 2: Same Concept in Indonesia
 
 ```
 Input:
-  - virality_score: 8.5
+  - match_percentage: 94%
   - purchasing_power_index: 0.25 (Indonesia)
-  - agent_modifier: 0
 
 Calculation:
-  1. Base: $5.00
-  2. Virality: $5 + (8.5 × $5) = $47.50
-  3. PPP: $47.50 × 0.25 = $11.88
-  4. Agent: $11.88 × 1.0 = $11.88
-  5. Premium: $11.88 × 1.12 = $13.30
+  1. Base: $20.00
+  2. Match bonus: 94% × $10 = $9.40
+  3. Pre-PPP: $29.40
+  4. PPP: $29.40 × 0.25 = $7.35
 
 Output:
-  - listed_price: $13.30
-  - cashback_amount: $1.42
+  - listed_price: $7.35
+  - cashback_amount: $0.74
 ```
 
-### Example 3: Agent Increases Price (Local Trend Signal)
+### Example 3: Moderate Match in Mexico
 
 ```
 Input:
-  - virality_score: 6.0
+  - match_percentage: 72%
   - purchasing_power_index: 0.40 (Mexico)
-  - agent_modifier: +0.15 (agent believes concept is trending locally)
 
 Calculation:
-  1. Base: $5.00
-  2. Virality: $5 + (6.0 × $5) = $35.00
-  3. PPP: $35.00 × 0.40 = $14.00
-  4. Agent: $14.00 × 1.15 = $16.10
-  5. Premium: $16.10 × 1.12 = $18.03
+  1. Base: $20.00
+  2. Match bonus: 72% × $10 = $7.20
+  3. Pre-PPP: $27.20
+  4. PPP: $27.20 × 0.40 = $10.88
 
 Output:
-  - listed_price: $18.03
-  - cashback_amount: $1.93
+  - listed_price: $10.88
+  - cashback_amount: $1.09
 ```
 
-### Example 4: Low-Virality Minimum Price
+### Example 4: Lower Match in India
 
 ```
 Input:
-  - virality_score: 1.5
-  - purchasing_power_index: 0.18 (India)
-  - agent_modifier: 0
+  - match_percentage: 58%
+  - purchasing_power_index: 0.22 (India)
 
 Calculation:
-  1. Base: $5.00
-  2. Virality: $5 + (1.5 × $5) = $12.50
-  3. PPP: $12.50 × 0.18 = $2.25
-  4. Agent: $2.25 × 1.0 = $2.25
-  5. Premium: $2.25 × 1.12 = $2.52
+  1. Base: $20.00
+  2. Match bonus: 58% × $10 = $5.80
+  3. Pre-PPP: $25.80
+  4. PPP: $25.80 × 0.22 = $5.68
 
 Output:
-  - listed_price: $2.52
-  - cashback_amount: $0.27
-
-Note: Above minimum price ($1.00), so no clamping needed.
+  - listed_price: $5.68
+  - cashback_amount: $0.57
 ```
 
 ---
 
-## 4. Virality Score Calculation
+## 4. Match Percentage Calculation
 
-The virality score (0-10) comes from the trained preference model.
+The match percentage (0-100) comes from the trained preference model combined with user profile data.
 
 ### How It's Calculated
 
 ```typescript
-interface ViralityCalculation {
-  // From model
-  rawScore: number;             // Direct model output (0-1 scale)
-  confidence: number;           // Model confidence (0-1)
-  
-  // Converted
-  viralityScore: number;        // rawScore × 10 (0-10 scale)
-  
-  // Explanation
-  topPositiveFactors: string[]; // Features pushing score up
-  topNegativeFactors: string[]; // Features pushing score down
+interface MatchCalculation {
+  // Base scores from model
+  conceptScore: number;           // Intrinsic quality (0-1)
+  profileFitScore: number;        // How well it fits user profile (0-1)
+
+  // Combined
+  matchPercentage: number;        // Combined score × 100 (0-100)
+
+  // Explanation (plain language for UI)
+  whyItFits: string[];            // Reasons this matches the user
+  considerations: string[];       // Things to keep in mind
 }
 
-function calculateViralityScore(features: DeepAnalysis, model: ModelVersion): ViralityCalculation {
-  const weights = model.feature_weights;
-  let rawScore = 0;
-  const positiveFactors: { feature: string; contribution: number }[] = [];
-  const negativeFactors: { feature: string; contribution: number }[] = [];
-  
-  // Apply each weight
-  for (const [featurePath, weight] of Object.entries(weights)) {
-    const featureValue = getNestedValue(features, featurePath);
-    
-    if (featureValue === undefined) continue;
-    
-    // Normalize feature value to 0-1 range
-    const normalizedValue = normalizeFeature(featurePath, featureValue);
-    const contribution = normalizedValue * weight;
-    
-    rawScore += contribution;
-    
-    if (contribution > 0.05) {
-      positiveFactors.push({ feature: featurePath, contribution });
-    } else if (contribution < -0.05) {
-      negativeFactors.push({ feature: featurePath, contribution });
-    }
-  }
-  
-  // Clamp to 0-1
-  rawScore = Math.max(0, Math.min(1, rawScore));
-  
+function calculateMatchPercentage(
+  features: DeepAnalysis,
+  userProfile: UserProfile,
+  model: ModelVersion
+): MatchCalculation {
+  // 1. Calculate intrinsic concept quality (like-ratio, creativity, etc.)
+  const conceptScore = calculateConceptScore(features, model);
+
+  // 2. Calculate profile fit (business type, goals, constraints)
+  const profileFitScore = calculateProfileFit(features, userProfile);
+
+  // 3. Combine scores (weighted average)
+  const combinedScore = (conceptScore * 0.6) + (profileFitScore * 0.4);
+
+  // 4. Generate plain-language explanations
+  const whyItFits = generateFitReasons(features, userProfile);
+  const considerations = generateConsiderations(features, userProfile);
+
   return {
-    rawScore,
-    confidence: calculateConfidence(features, model),
-    viralityScore: rawScore * 10,
-    topPositiveFactors: positiveFactors
-      .sort((a, b) => b.contribution - a.contribution)
-      .slice(0, 5)
-      .map(f => f.feature),
-    topNegativeFactors: negativeFactors
-      .sort((a, b) => a.contribution - b.contribution)
-      .slice(0, 5)
-      .map(f => f.feature)
+    conceptScore,
+    profileFitScore,
+    matchPercentage: Math.round(combinedScore * 100),
+    whyItFits,
+    considerations
   };
 }
 ```
 
-### Example Virality Calculation
+### Match Percentage Components
+
+| Component | Weight | Factors |
+|-----------|--------|---------|
+| Concept Quality | 60% | Like-ratio, creativity, replicability, freshness |
+| Profile Fit | 40% | Industry match, resource constraints, goals alignment |
+
+### Example Match Calculation
 
 ```
-Video Features:
-  - script.replicability.score: 9 (normalized: 0.9)
-  - trends.memeDependent: false (normalized: 0.0)
-  - casting.actingSkillRequired: 3 (normalized: 0.3)
-  - production.shotComplexity: 2 (normalized: 0.2)
-  - comedyStyle.contrastMechanism.present: true (normalized: 1.0)
+Concept Features:
+  - Replicability: High (easy to film)
+  - People needed: 1 person
+  - Industry: Works for food/retail/service
 
-Model Weights:
-  - script.replicability.score: +0.25
-  - trends.memeDependent: -0.20
-  - casting.actingSkillRequired: -0.15
-  - production.shotComplexity: -0.10
-  - comedyStyle.contrastMechanism.present: +0.12
+User Profile:
+  - Business: "Coffee shop in Austin"
+  - Goal: "More foot traffic"
+  - Constraints: "Just me, no budget for actors"
 
 Calculation:
-  (0.9 × 0.25) + (0.0 × -0.20) + (0.3 × -0.15) + (0.2 × -0.10) + (1.0 × 0.12)
-  = 0.225 + 0 - 0.045 - 0.02 + 0.12
-  = 0.28 (base contribution from these 5 features)
-  + contributions from other 45+ features
-  = 0.72 (final raw score)
+  1. Concept score: 0.82 (high replicability, good engagement)
+  2. Profile fit: 0.95 (works for food business, 1 person, local focus)
+  3. Combined: (0.82 × 0.6) + (0.95 × 0.4) = 0.492 + 0.38 = 0.872
 
-virality_score = 0.72 × 10 = 7.2
+match_percentage = 87%
+
+Why it fits:
+  - "Works great for food businesses"
+  - "You can film this yourself"
+  - "Perfect for driving local traffic"
 ```
 
 ---
@@ -523,98 +452,31 @@ async function updatePPPValues() {
 
 ---
 
-## 6. Agent Modifier
+## 6. Cashback System (De-emphasized)
 
-### When Agents Adjust Price
+The cashback system exists primarily to collect feedback data, not as a marketing feature.
 
-Agents (data input agents, not buyers) can adjust price ±20% based on:
+### UI Treatment
 
-1. **Local Trend Signal**: Concept matches current local trend
-2. **Cultural Fit**: Concept particularly resonates with local culture
-3. **Competition**: Similar concepts already popular locally
-4. **Seasonality**: Holiday-specific content
-5. **Market Saturation**: Many similar concepts already sold
+- **NOT**: "Get 10% cashback when you film it!"
+- **YES**: Small footnote: "Film it → get some back"
 
-### Implementation
-
-```typescript
-interface AgentPriceAdjustment {
-  modifier: number;        // -0.20 to +0.20
-  reason: AgentAdjustmentReason;
-  notes?: string;
-}
-
-enum AgentAdjustmentReason {
-  LOCAL_TREND = 'local_trend',
-  CULTURAL_FIT = 'cultural_fit',
-  HIGH_COMPETITION = 'high_competition',
-  LOW_COMPETITION = 'low_competition',
-  SEASONAL = 'seasonal',
-  MARKET_SATURATION = 'market_saturation'
-}
-
-function applyAgentModifier(
-  basePrice: number, 
-  adjustment: AgentPriceAdjustment
-): number {
-  const clampedModifier = Math.max(-0.20, Math.min(0.20, adjustment.modifier));
-  
-  // Log adjustment for analysis
-  logAgentAdjustment({
-    basePrice,
-    modifier: clampedModifier,
-    reason: adjustment.reason,
-    notes: adjustment.notes,
-    adjustedPrice: basePrice * (1 + clampedModifier)
-  });
-  
-  return basePrice * (1 + clampedModifier);
-}
-```
-
-### Adjustment Guidelines
-
-| Reason | Typical Modifier | Example |
-|--------|------------------|---------|
-| Strong local trend match | +15% to +20% | Concept matches trending challenge |
-| Good cultural fit | +5% to +10% | Humor style matches local preference |
-| High local competition | -10% to -15% | Many similar concepts available |
-| Low local competition | +5% to +10% | Unique concept for market |
-| Seasonal relevance | +10% to +20% | Holiday-specific at right time |
-| Market saturation | -15% to -20% | Market has seen too many similar |
-
----
-
-## 7. Cashback Premium
-
-### Why 12%?
-
-```
-Goal: Incentivize buyers to submit produced content
-Trade-off: Higher premium = higher initial price = fewer sales
-
-Analysis:
-- 10% premium: Cashback feels minimal, low incentive
-- 12% premium: Meaningful cashback, acceptable price increase
-- 15% premium: Strong incentive, but price may deter buyers
-
-Decision: 12% balances incentive with conversion
-```
+The cashback is mentioned subtly because:
+1. Main value proposition is the concept, not the rebate
+2. Avoids attracting buyers motivated only by cashback
+3. Keeps focus on business outcomes, not savings
 
 ### How It Works
 
 ```
 Scenario:
-  - Base price after all adjustments: $10.00
-  - With 12% premium: $10.00 × 1.12 = $11.20
-  
-  Buyer pays: $11.20
-  If buyer submits produced content: Gets back $1.20
-  Net price for buyer: $10.00
-  
-  Revenue breakdown:
-  - If cashback claimed: Platform keeps $10.00
-  - If cashback not claimed: Platform keeps $11.20
+  - Listed price: $25.00
+  - Buyer purchases concept
+  - Buyer produces content and submits URL
+  - Buyer receives ~$2.50 back (10%)
+
+Revenue for platform: $22.50
+Data received: Produced content URL for feedback loop
 ```
 
 ### Cashback Expiration
@@ -625,12 +487,11 @@ const CASHBACK_EXPIRATION_DAYS = 30;
 async function checkCashbackExpiration() {
   const expirationDate = new Date();
   expirationDate.setDate(expirationDate.getDate() - CASHBACK_EXPIRATION_DAYS);
-  
+
   await db.transactions.updateMany({
     where: {
       cashback_status: 'pending',
       purchased_at: { lt: expirationDate },
-      // No produced_content submitted
       produced_content: null
     },
     data: { cashback_status: 'expired' }
@@ -695,7 +556,7 @@ function formatCurrency(amount: number, currency: string): string {
 
 ---
 
-## 9. Pricing API
+## 7. Pricing API
 
 ### Endpoint: Calculate Price
 
@@ -703,36 +564,33 @@ function formatCurrency(amount: number, currency: string): string {
 // POST /api/pricing/calculate
 interface CalculatePriceRequest {
   concept_id: string;
+  user_id: string;        // For profile-based match calculation
   market_id: string;
-  agent_modifier?: number;
 }
 
 interface CalculatePriceResponse {
   concept_id: string;
   market_id: string;
+  match_percentage: number;
   pricing: PricingOutput;
   display: DisplayPrice;
-  cashback: {
-    amount: number;
-    percentage: number;
-    expiration_days: number;
-  };
 }
 ```
 
-### Endpoint: Bulk Calculate
+### Endpoint: Bulk Calculate (for recommendations)
 
 ```typescript
 // POST /api/pricing/bulk
 interface BulkCalculateRequest {
   concept_ids: string[];
+  user_id: string;
   market_id: string;
 }
 
 interface BulkCalculateResponse {
   results: {
     concept_id: string;
-    virality_score: number;
+    match_percentage: number;
     listed_price: number;
     display_price: DisplayPrice;
   }[];
@@ -741,28 +599,28 @@ interface BulkCalculateResponse {
 
 ---
 
-## 10. Pricing Analytics
+## 8. Pricing Analytics
 
 ### Track Conversion by Price Point
 
 ```typescript
 interface PricingAnalytics {
-  priceRange: string;         // '$0-5', '$5-10', etc.
+  priceRange: string;         // '$5-10', '$10-20', etc.
   listingCount: number;
   salesCount: number;
   conversionRate: number;
-  averageTimeToSale: number;  // Hours
+  averageMatchPercent: number;
 }
 
 async function getPricingAnalytics(marketId: string): Promise<PricingAnalytics[]> {
   const ranges = [
-    { min: 0, max: 5, label: '$0-5' },
     { min: 5, max: 10, label: '$5-10' },
-    { min: 10, max: 20, label: '$10-20' },
-    { min: 20, max: 50, label: '$20-50' },
-    { min: 50, max: 999, label: '$50+' }
+    { min: 10, max: 15, label: '$10-15' },
+    { min: 15, max: 20, label: '$15-20' },
+    { min: 20, max: 25, label: '$20-25' },
+    { min: 25, max: 30, label: '$25-30' }
   ];
-  
+
   return Promise.all(ranges.map(async range => {
     const listings = await db.listingWindows.findMany({
       where: {
@@ -771,15 +629,15 @@ async function getPricingAnalytics(marketId: string): Promise<PricingAnalytics[]
       },
       include: { transactions: true }
     });
-    
+
     const salesCount = listings.reduce((sum, l) => sum + l.sold_count, 0);
-    
+
     return {
       priceRange: range.label,
       listingCount: listings.length,
       salesCount,
       conversionRate: listings.length > 0 ? salesCount / listings.length : 0,
-      averageTimeToSale: calculateAverageTimeToSale(listings)
+      averageMatchPercent: calculateAverageMatch(listings)
     };
   }));
 }
@@ -789,9 +647,9 @@ async function getPricingAnalytics(marketId: string): Promise<PricingAnalytics[]
 
 ## Related Documents
 
-- [Model Training Deep Dive](./06_MODEL_TRAINING.md) - How virality score is calculated
-- [Market Contexts Deep Dive](./11_MARKET_CONTEXTS.md) - PPP values and market data
-- [Cashback Flow Deep Dive](./10_CASHBACK_FLOW.md) - How cashback is processed
+- [Model Training Deep Dive](./06_MODEL_TRAINING.md) - How match % is calculated
+- [Profile and Matching](./12_PROFILE_AND_MATCHING.md) - User profile and matching logic
+- [Cashback Flow Deep Dive](./09_CASHBACK_FLOW.md) - How cashback is processed
 
 ---
 

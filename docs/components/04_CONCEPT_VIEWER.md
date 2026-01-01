@@ -1,8 +1,8 @@
 # Component 04: Concept Viewer Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: Concept Viewer  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: Concept Viewer
+> **Last Updated**: January 1, 2026
 
 ---
 
@@ -209,7 +209,7 @@ interface ConceptViewerData {
     templateDescription: string;
     requiredElements: string[];
     variableElements: string[];
-    viralityScore: number;
+    matchPercentage: number;       // 0-100, personalized to buyer
   };
   
   // Video access (signed URL, expires)
@@ -568,27 +568,42 @@ interface ProductionPanelProps {
 }
 
 const ProductionPanel: React.FC<ProductionPanelProps> = ({ production }) => {
+  // Convert technical values to plain language
+  const getDifficultyLabel = (complexity: number): string => {
+    if (complexity <= 3) return "Easy to film";
+    if (complexity <= 6) return "Moderate";
+    return "More involved";
+  };
+
+  const getEditingLabel = (dependency: number): string => {
+    if (dependency <= 3) return "Minimal editing";
+    if (dependency <= 6) return "Some editing";
+    return "Significant editing needed";
+  };
+
   return (
     <div className="production-panel p-4">
-      <h3 className="font-bold text-lg mb-4">Production Requirements</h3>
-      
-      {/* Key metrics */}
+      <h3 className="font-bold text-lg mb-4">What You'll Need</h3>
+
+      {/* Key metrics - PLAIN LANGUAGE */}
       <div className="metrics grid grid-cols-2 gap-4 mb-4">
         <div className="metric">
-          <span className="label text-gray-500">People Required</span>
-          <span className="value text-2xl font-bold">{production.minimumPeople}</span>
+          <span className="label text-gray-500">People</span>
+          <span className="value text-2xl font-bold">
+            {production.minimumPeople === 1 ? "Just you" : `${production.minimumPeople} people`}
+          </span>
         </div>
         <div className="metric">
-          <span className="label text-gray-500">Time to Recreate</span>
+          <span className="label text-gray-500">Time to film</span>
           <span className="value text-2xl font-bold">{production.timeToRecreate}</span>
         </div>
         <div className="metric">
-          <span className="label text-gray-500">Shot Complexity</span>
-          <ComplexityMeter value={production.shotComplexity} />
+          <span className="label text-gray-500">Difficulty</span>
+          <span className="value text-lg font-semibold">{getDifficultyLabel(production.shotComplexity)}</span>
         </div>
         <div className="metric">
-          <span className="label text-gray-500">Editing Dependency</span>
-          <ComplexityMeter value={production.editingDependency} />
+          <span className="label text-gray-500">Post-production</span>
+          <span className="value text-lg font-semibold">{getEditingLabel(production.editingDependency)}</span>
         </div>
       </div>
       

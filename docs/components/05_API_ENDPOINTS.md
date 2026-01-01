@@ -1,8 +1,8 @@
 # Component 05: API Endpoints Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: API Endpoints  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: API Endpoints
+> **Last Updated**: January 1, 2026
 
 ---
 
@@ -51,17 +51,17 @@ The new marketplace endpoints consume data from existing endpoints—they don't 
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
-| `/api/concepts` | GET | List available concepts |
+| `/api/profile` | GET, PUT | Get/update user profile |
+| `/api/profile/onboarding` | POST | AI chat onboarding |
+| `/api/recommendations` | GET | Get personalized recommendations |
 | `/api/concepts/:id` | GET | Get concept details |
 | `/api/concepts/:id/viewer` | GET | Get viewer data (purchased only) |
 | `/api/concepts/:id/purchase` | POST | Purchase concept |
-| `/api/listings` | GET | Active listings by market |
-| `/api/listings/rotate` | POST | Cron: Rotate listings |
 | `/api/transactions` | GET | List buyer's transactions |
 | `/api/transactions/:id` | GET | Get transaction details |
 | `/api/transactions/:id/submit-content` | POST | Submit produced content |
 | `/api/markets` | GET | List market contexts |
-| `/api/model/predict` | POST | Get virality score |
+| `/api/model/match` | POST | Get match percentage |
 | `/api/model/versions` | GET | List model versions |
 | `/api/overlays/:conceptId/:language` | GET | Get subtitles |
 | `/api/overlays/:conceptId/:language` | POST | Generate subtitles |
@@ -249,31 +249,65 @@ interface PredictResponse {
 
 ---
 
-## 2. Concepts API
+## 2. Profile & Recommendations API
 
-### GET `/api/concepts`
+### GET `/api/profile`
 
-List available concepts with filtering and pagination.
+Get the authenticated user's profile.
 
-**Query Parameters**:
+**Response**:
 ```typescript
-interface ListConceptsQuery {
-  market_id?: string;           // Filter by market
-  min_virality?: number;        // Minimum virality score
-  max_virality?: number;        // Maximum virality score
-  evergreen_only?: boolean;     // Only evergreen-eligible
-  status?: 'active' | 'sold_out' | 'all';
-  sort_by?: 'virality' | 'price' | 'created';
-  sort_order?: 'asc' | 'desc';
-  page?: number;
-  per_page?: number;            // Max 50
+interface UserProfile {
+  id: string;
+  business_description: string;    // "Coffee shop in Austin"
+  goals: string[];                 // ["More foot traffic", "Brand awareness"]
+  constraints: string[];           // ["Just me, no budget for actors"]
+  industry_tags: string[];         // ["food", "retail", "local"]
+  onboarding_complete: boolean;
+  created_at: string;
+  updated_at: string;
+}
+```
+
+### POST `/api/profile/onboarding`
+
+AI chat endpoint for building user profile through conversation.
+
+**Request Body**:
+```typescript
+interface OnboardingRequest {
+  message: string;                 // User's chat message
+  conversation_id?: string;        // Continue existing conversation
 }
 ```
 
 **Response**:
 ```typescript
-interface ListConceptsResponse {
-  concepts: ConceptSummary[];
+interface OnboardingResponse {
+  conversation_id: string;
+  response: string;                // AI response
+  profile_updates?: Partial<UserProfile>;  // Any extracted profile data
+  onboarding_complete: boolean;    // True when profile is ready
+  next_prompt?: string;            // Suggested next question
+}
+```
+
+### GET `/api/recommendations`
+
+Get personalized concept recommendations based on user profile.
+
+**Query Parameters**:
+```typescript
+interface RecommendationsQuery {
+  page?: number;
+  per_page?: number;              // Max 20
+}
+```
+
+**Response**:
+```typescript
+interface RecommendationsResponse {
+  recommendations: RecommendationItem[];
   pagination: {
     page: number;
     per_page: number;
@@ -282,63 +316,60 @@ interface ListConceptsResponse {
   };
 }
 
-interface ConceptSummary {
+interface RecommendationItem {
   id: string;
   concept_core: string;
-  virality_score: number;
-  evergreen_eligible: boolean;
-  origin_market: {
-    id: string;
-    country_code: string;
-    region_name: string;
+  match_percentage: number;       // 0-100, personalized to user
+  why_it_fits: string[];          // Plain language reasons
+  quick_facts: {
+    people_needed: string;        // "Just you" or "2-3 people"
+    film_time: string;            // "15 minutes"
+    difficulty: string;           // "Easy" | "Medium" | "Advanced"
   };
-  thumbnail_url?: string;
-  listing?: {
-    id: string;
+  listing: {
     listed_price: number;
-    currency_code: string;
-    available_count: number;    // per_market_cap - sold_count
-    expires_at: string;
+    display_price: DisplayPrice;
+    available_count: number;
   };
   created_at: string;
 }
 ```
 
-**Example Request**:
-```bash
-curl "https://api.example.com/api/concepts?market_id=market-id&min_virality=6&evergreen_only=true&per_page=20"
-```
-
 **Example Response**:
 ```json
 {
-  "concepts": [
+  "recommendations": [
     {
       "id": "concept-123",
       "concept_core": "Employee dreads admitting mistake, cut to calm reaction",
-      "virality_score": 7.2,
-      "evergreen_eligible": true,
-      "origin_market": {
-        "id": "market-us",
-        "country_code": "US",
-        "region_name": "United States"
+      "match_percentage": 94,
+      "why_it_fits": [
+        "Works great for food businesses",
+        "You can film this yourself",
+        "Perfect for driving local traffic"
+      ],
+      "quick_facts": {
+        "people_needed": "Just you",
+        "film_time": "15 minutes",
+        "difficulty": "Easy"
       },
-      "thumbnail_url": "https://storage.example.com/thumbs/concept-123.jpg",
       "listing": {
-        "id": "listing-abc",
-        "listed_price": 11.48,
-        "currency_code": "IDR",
-        "available_count": 3,
-        "expires_at": "2025-12-06T00:00:00Z"
+        "listed_price": 29.40,
+        "display_price": {
+          "amount": 29.40,
+          "currency": "USD",
+          "formatted": "$29.40"
+        },
+        "available_count": 3
       },
       "created_at": "2025-12-03T15:00:00Z"
     }
   ],
   "pagination": {
     "page": 1,
-    "per_page": 20,
+    "per_page": 10,
     "total": 45,
-    "total_pages": 3
+    "total_pages": 5
   }
 }
 ```
@@ -349,6 +380,8 @@ curl "https://api.example.com/api/concepts?market_id=market-id&min_virality=6&ev
 
 Get full concept details (public info, no viewer data).
 
+**Authentication**: Required (for personalized match %)
+
 **Response**:
 ```typescript
 interface ConceptDetails {
@@ -357,33 +390,25 @@ interface ConceptDetails {
   template_description: string;
   required_elements: string[];
   variable_elements: string[];
-  virality_score: number;
+  match_percentage: number;        // Personalized to user (0-100)
+  why_it_fits: string[];           // Plain language fit reasons
   evergreen_eligible: boolean;
-  
-  origin_market: MarketContext;
-  model_version: {
-    id: string;
-    version_tag: string;
+
+  // Quick facts (plain language)
+  quick_facts: {
+    people_needed: string;         // "Just you" or "2-3 people"
+    film_time: string;             // "About 15 minutes"
+    difficulty: string;            // "Easy to film"
+    works_for: string[];           // ["Restaurants", "Retail", "Any business"]
   };
-  
-  // Preview data (limited for non-purchasers)
-  preview: {
-    duration: number;
-    thumbnail_url?: string;
-    people_count: number;
-    production_time: string;
-    industry_examples: string[];
-  };
-  
-  // Current listings
-  listings: {
-    market: MarketContext;
+
+  // Current listing for user's market
+  listing: {
     listed_price: number;
     display_price: DisplayPrice;
     available_count: number;
-    expires_at: string;
-  }[];
-  
+  };
+
   created_at: string;
 }
 ```
@@ -396,43 +421,28 @@ interface ConceptDetails {
   "template_description": "Show person anxious about admitting mistake, cut to unexpected reaction",
   "required_elements": ["Person expressing anxiety", "Situation of admitting fault", "Cut to reaction"],
   "variable_elements": ["Type of mistake", "Who they're telling", "The reaction style"],
-  "virality_score": 7.2,
-  "evergreen_eligible": true,
-  "origin_market": {
-    "id": "market-us",
-    "country_code": "US",
-    "region_name": "United States",
-    "primary_language": "en"
-  },
-  "model_version": {
-    "id": "model-v1",
-    "version_tag": "v1.0"
-  },
-  "preview": {
-    "duration": 5,
-    "thumbnail_url": "https://storage.example.com/thumbs/concept-123.jpg",
-    "people_count": 2,
-    "production_time": "15min",
-    "industry_examples": ["Restaurants", "Retail", "Office"]
-  },
-  "listings": [
-    {
-      "market": {
-        "id": "market-id",
-        "country_code": "ID",
-        "region_name": "Indonesia",
-        "primary_language": "id"
-      },
-      "listed_price": 11.48,
-      "display_price": {
-        "amount": 172200,
-        "currency": "IDR",
-        "formatted": "Rp 172.200"
-      },
-      "available_count": 3,
-      "expires_at": "2025-12-06T00:00:00Z"
-    }
+  "match_percentage": 94,
+  "why_it_fits": [
+    "Works great for food businesses",
+    "You can film this yourself",
+    "Perfect for driving local traffic"
   ],
+  "evergreen_eligible": true,
+  "quick_facts": {
+    "people_needed": "Just you",
+    "film_time": "About 15 minutes",
+    "difficulty": "Easy to film",
+    "works_for": ["Restaurants", "Retail", "Office"]
+  },
+  "listing": {
+    "listed_price": 29.40,
+    "display_price": {
+      "amount": 29.40,
+      "currency": "USD",
+      "formatted": "$29.40"
+    },
+    "available_count": 3
+  },
   "created_at": "2025-12-03T15:00:00Z"
 }
 ```
@@ -522,51 +532,11 @@ curl -X POST "https://api.example.com/api/concepts/concept-123/purchase" \
 
 ---
 
-## 3. Listings API
+## 3. Internal/Admin API
 
-### GET `/api/listings`
+### POST `/api/admin/listings/rotate`
 
-List active listings.
-
-**Query Parameters**:
-```typescript
-interface ListListingsQuery {
-  market_id?: string;         // Filter by market (required for buyers)
-  concept_id?: string;        // Filter by concept
-  status?: 'active' | 'sold_out' | 'expired' | 'all';
-  page?: number;
-  per_page?: number;
-}
-```
-
-**Response**:
-```typescript
-interface ListListingsResponse {
-  listings: ListingDetails[];
-  pagination: Pagination;
-}
-
-interface ListingDetails {
-  id: string;
-  concept: ConceptSummary;
-  market: MarketContext;
-  window_start: string;
-  window_end: string;
-  base_price_usd: number;
-  listed_price: number;
-  display_price: DisplayPrice;
-  per_market_cap: number;
-  sold_count: number;
-  available_count: number;
-  status: 'active' | 'sold_out' | 'expired' | 'archived';
-}
-```
-
----
-
-### POST `/api/listings/rotate`
-
-Rotate listings (cron job endpoint).
+Rotate listings (cron job endpoint). Internal use only.
 
 **Authentication**: Admin or cron secret required
 
@@ -586,6 +556,8 @@ interface RotateResponse {
   details?: RotateDetail[];   // If dry_run
 }
 ```
+
+> **Note**: The customer-facing app uses `/api/recommendations` instead of browsing listings directly. This admin endpoint is for internal catalog management only.
 
 ---
 
@@ -738,35 +710,29 @@ interface MarketContext {
 
 ## 6. Model API
 
-### POST `/api/model/predict`
+### POST `/api/model/match`
 
-Get virality score prediction for a video.
+Get match percentage for a concept and user.
 
-**Authentication**: Admin/internal only
+**Authentication**: Required
 
 **Request Body**:
 ```typescript
-interface PredictRequest {
-  video_id?: string;          // Existing video
-  features?: DeepAnalysis;    // Or provide features directly
+interface MatchRequest {
+  concept_id: string;
+  user_id?: string;           // Defaults to authenticated user
 }
 ```
 
 **Response**:
 ```typescript
-interface PredictResponse {
-  virality_score: number;       // 0-10
-  confidence: number;           // 0-1
+interface MatchResponse {
+  match_percentage: number;   // 0-100
+  concept_score: number;      // 0-1 (intrinsic quality)
+  profile_fit_score: number;  // 0-1 (user fit)
+  why_it_fits: string[];      // Plain language reasons
+  considerations: string[];   // Things to consider
   model_version: string;
-  top_positive_factors: {
-    feature: string;
-    contribution: number;
-  }[];
-  top_negative_factors: {
-    feature: string;
-    contribution: number;
-  }[];
-  breakdown?: PricingBreakdown;  // If concept pricing requested
 }
 ```
 

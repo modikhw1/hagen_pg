@@ -1,14 +1,22 @@
 # Component 06: Model Training Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: Model Training Pipeline  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: Model Training Pipeline
+> **Last Updated**: January 1, 2026
 
 ---
 
 ## Overview
 
 This document provides exhaustive detail on how the preference model is trained, including data preparation, feature engineering, model selection, evaluation, and deployment.
+
+### Output: Match Percentage (0-100)
+
+The model outputs a **match percentage** (0-100) for each concept/user pair, which combines:
+- **Concept Quality Score (60%)**: Intrinsic quality based on video analysis features
+- **Profile Fit Score (40%)**: How well the concept matches the user's profile
+
+This replaces the previous "virality score" (0-10) with a user-centric metric that answers: "How good is this concept *for this specific user*?"
 
 ---
 
@@ -812,51 +820,80 @@ COMMIT;
 ### 7.2 Inference Endpoint
 
 ```typescript
-// lib/model/predict.ts
+// lib/model/match.ts
 import { getActiveModel } from './loader';
 
-export async function predictViralityScore(
-  analysis: DeepAnalysis
-): Promise<{
-  score: number;
-  confidence: number;
-  topFactors: { feature: string; contribution: number }[];
-}> {
+interface MatchResult {
+  matchPercentage: number;        // 0-100
+  conceptScore: number;           // 0-1 (intrinsic quality)
+  profileFitScore: number;        // 0-1 (user fit)
+  whyItFits: string[];            // Plain language reasons
+  considerations: string[];       // Things to consider
+}
+
+export async function calculateMatch(
+  analysis: DeepAnalysis,
+  userProfile: UserProfile
+): Promise<MatchResult> {
   const model = await getActiveModel();
-  
-  // Flatten and normalize features
+
+  // 1. Calculate concept quality score (intrinsic to the video)
+  const conceptScore = calculateConceptScore(analysis, model);
+
+  // 2. Calculate profile fit score (user-specific)
+  const profileFitScore = calculateProfileFit(analysis, userProfile);
+
+  // 3. Combine scores (60% concept, 40% profile)
+  const combinedScore = (conceptScore * 0.6) + (profileFitScore * 0.4);
+
+  // 4. Generate plain-language explanations
+  const whyItFits = generateFitReasons(analysis, userProfile);
+  const considerations = generateConsiderations(analysis, userProfile);
+
+  return {
+    matchPercentage: Math.round(combinedScore * 100),
+    conceptScore,
+    profileFitScore,
+    whyItFits,
+    considerations
+  };
+}
+
+function calculateConceptScore(analysis: DeepAnalysis, model: ModelVersion): number {
   const features = flattenAnalysis(analysis);
   const normalized = normalizeWithConfig(features, model.normalizationConfig);
-  
-  // Apply weights
+
   let score = 0;
-  const contributions: { feature: string; contribution: number }[] = [];
-  
   for (const [feature, weight] of Object.entries(model.featureWeights)) {
     const value = normalized[feature] ?? 0;
-    const contribution = value * weight;
-    score += contribution;
-    
-    if (Math.abs(contribution) > 0.02) {
-      contributions.push({ feature, contribution });
-    }
+    score += value * weight;
   }
-  
-  // Clamp to 0-1
-  score = Math.max(0, Math.min(1, score));
-  
-  // Calculate confidence based on feature coverage
-  const coverage = calculateFeatureCoverage(features, model.featureWeights);
-  const confidence = coverage * model.accuracy.r2;
-  
-  // Sort factors by absolute contribution
-  contributions.sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution));
-  
-  return {
-    score: score * 10, // Convert to 0-10 scale
-    confidence,
-    topFactors: contributions.slice(0, 10)
-  };
+
+  return Math.max(0, Math.min(1, score));
+}
+
+function calculateProfileFit(analysis: DeepAnalysis, profile: UserProfile): number {
+  let fitScore = 0;
+
+  // Industry match
+  const conceptIndustries = analysis.flexibility?.industryFit || [];
+  const industryMatch = profile.industry_tags.some(t =>
+    conceptIndustries.includes(t)
+  );
+  fitScore += industryMatch ? 0.3 : 0;
+
+  // Resource constraints match
+  const peopleNeeded = analysis.casting?.minimumPeople || 1;
+  const resourceFit = profile.constraints.includes('solo')
+    ? (peopleNeeded === 1 ? 0.3 : 0.1)
+    : 0.2;
+  fitScore += resourceFit;
+
+  // Goal alignment
+  const goalFit = assessGoalAlignment(analysis, profile.goals);
+  fitScore += goalFit * 0.4;
+
+  return Math.min(1, fitScore);
 }
 ```
 
@@ -952,7 +989,8 @@ async function checkRetrainNeeded(): Promise<boolean> {
 
 ## Related Documents
 
-- [Pricing Logic Deep Dive](./03_PRICING_LOGIC.md) - Uses virality score
+- [Pricing Logic Deep Dive](./03_PRICING_LOGIC.md) - Uses match percentage for pricing
+- [Profile and Matching](./12_PROFILE_AND_MATCHING.md) - User profile and matching logic
 - [Feature Schema Reference](../reference/FEATURE_SCHEMA.md) - All 170+ features
 - [Database Schema Deep Dive](./02_DATABASE_SCHEMA.md) - Model storage
 

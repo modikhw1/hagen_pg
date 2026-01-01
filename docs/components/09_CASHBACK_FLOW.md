@@ -1,14 +1,22 @@
 # Component 09: Cashback Flow Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: Cashback and Performance Verification System  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: Cashback and Performance Verification System
+> **Last Updated**: January 1, 2026
 
 ---
 
 ## Overview
 
 The cashback system creates a feedback loop: buyers who produce content based on purchased concepts can submit proof of production and receive a 10-15% refund. This generates performance data while incentivizing actual usage.
+
+### UI Treatment: De-Emphasized
+
+> **Important**: Per interface specs, cashback is **de-emphasized in the UI**.
+> - NOT: "Get 10% cashback when you film it!"
+> - YES: Small footnote: "Film it → get some back"
+>
+> The primary value proposition is the concept itself, not the rebate. The cashback exists primarily to collect feedback data, not as a marketing feature. See [Interface Documentation](../interface/README.md) for UI guidelines.
 
 ---
 

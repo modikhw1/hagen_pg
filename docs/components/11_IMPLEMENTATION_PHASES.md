@@ -1,8 +1,8 @@
 # Component 11: Implementation Phases Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: Phased Implementation Roadmap  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: Phased Implementation Roadmap
+> **Last Updated**: January 1, 2026
 
 ---
 
@@ -330,23 +330,39 @@ const phase2Tasks = [
 ### Duration: 2-3 weeks
 
 ### Objective
-Build core marketplace: concepts, listings, viewer, and catalog browse.
+Build core marketplace: concepts, listings, viewer, and **recommendations-first** discovery.
 
 ### Deliverables
 
 | Deliverable | Description | Status |
 |-------------|-------------|--------|
+| User Profile & Onboarding | AI chat to build user profile | 🔲 TODO |
 | Concept Abstraction | Extract concepts from videos | 🔲 TODO |
 | Listing System | 72h windows with caps | 🔲 TODO |
 | Concept Viewer | In-platform video viewing | 🔲 TODO |
-| Catalog Browse | Search and filter listings | 🔲 TODO |
-| Pricing Engine | Calculate per-market prices | 🔲 TODO |
+| Recommendations Engine | Profile-based concept matching | 🔲 TODO |
+| Pricing Engine | Calculate per-market prices ($20-30 US) | 🔲 TODO |
 | Expiration Cron | Auto-archive expired listings | 🔲 TODO |
 
 ### Tasks
 
 ```typescript
 const phase3Tasks = [
+  {
+    id: 'P3-0',
+    title: 'User Onboarding Chat',
+    description: 'AI chat to build user profile',
+    priority: 'high',
+    estimate: '3 days',
+    dependencies: [],
+    subtasks: [
+      'user_profiles table',
+      'AI chat endpoint (Claude or similar)',
+      'Extract business info, goals, constraints',
+      'Industry tag mapping',
+      'Profile completion flow'
+    ]
+  },
   {
     id: 'P3-1',
     title: 'Database Schema',
@@ -372,7 +388,7 @@ const phase3Tasks = [
     subtasks: [
       'UI to create concept from video',
       'Copy relevant analysis fields',
-      'Calculate virality score',
+      'Calculate match percentage (profile-based)',
       'Calculate evergreen status',
       'Store as draft concept'
     ]
@@ -408,30 +424,30 @@ const phase3Tasks = [
   },
   {
     id: 'P3-5',
-    title: 'Catalog Browse',
-    description: 'Search and filter listings',
-    priority: 'medium',
-    estimate: '2 days',
-    dependencies: ['P3-3'],
+    title: 'Recommendations Engine',
+    description: 'Profile-based concept matching',
+    priority: 'high',
+    estimate: '3 days',
+    dependencies: ['P3-0', 'P3-3'],
     subtasks: [
-      'Grid/list view toggle',
-      'Sort by price, time, score',
-      'Filter by market availability',
-      'Urgency indicators'
+      'Match % calculation (concept quality + profile fit)',
+      'Personalized recommendations API',
+      'Plain language "why it fits" generation',
+      'Quick facts display (people needed, time, difficulty)'
     ]
   },
   {
     id: 'P3-6',
     title: 'Pricing Engine',
-    description: 'Calculate prices per market',
+    description: 'Calculate prices per market ($20-30 US)',
     priority: 'high',
     estimate: '2 days',
-    dependencies: ['P2-5'],
+    dependencies: ['P3-5'],
     subtasks: [
-      'Base price from virality score',
+      'Base price $20 + match bonus (up to $10)',
       'PPP adjustment per market',
-      'Agent modifier (future)',
-      'Premium markup (12%)'
+      'Price display with local currency',
+      'Subtle cashback calculation (~10%)'
     ]
   },
   {

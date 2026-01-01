@@ -1,8 +1,8 @@
 # Component 02: Database Schema Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: Database Schema  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: Database Schema
+> **Last Updated**: January 1, 2026
 
 ---
 
@@ -544,7 +544,50 @@ In IDR (at ~15,000 IDR/USD) = ~187,500 IDR
 This makes concepts affordable relative to local income.
 ```
 
-### 2.2 `model_versions`
+### 2.2 `user_profiles`
+
+User profiles built through AI onboarding chat, used for personalized recommendations.
+
+```sql
+CREATE TABLE user_profiles (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL UNIQUE,               -- From auth system
+  business_description text,                  -- "Coffee shop in Austin"
+  goals text[],                               -- ["More foot traffic", "Brand awareness"]
+  constraints text[],                         -- ["Just me, no budget for actors"]
+  industry_tags text[],                       -- ["food", "retail", "local"]
+  onboarding_complete boolean DEFAULT false,  -- Profile ready for matching?
+  onboarding_conversation jsonb,              -- Chat history for context
+  created_at timestamp DEFAULT now(),
+  updated_at timestamp DEFAULT now()
+);
+
+-- Indexes
+CREATE INDEX idx_user_profiles_user ON user_profiles(user_id);
+CREATE INDEX idx_user_profiles_industry ON user_profiles USING GIN(industry_tags);
+CREATE INDEX idx_user_profiles_complete ON user_profiles(onboarding_complete);
+```
+
+**Example Record**:
+```json
+{
+  "id": "profile-abc",
+  "user_id": "user-123",
+  "business_description": "Coffee shop in Austin, Texas",
+  "goals": ["More foot traffic", "Build local brand awareness"],
+  "constraints": ["Just me, no budget for actors", "Limited time for complex productions"],
+  "industry_tags": ["food", "beverage", "local", "retail"],
+  "onboarding_complete": true,
+  "onboarding_conversation": [
+    {"role": "assistant", "content": "Tell me about your business..."},
+    {"role": "user", "content": "I run a coffee shop in Austin..."}
+  ],
+  "created_at": "2025-12-03T10:00:00Z",
+  "updated_at": "2025-12-03T10:15:00Z"
+}
+```
+
+### 2.3 `model_versions`
 
 Track trained preference models over time.
 

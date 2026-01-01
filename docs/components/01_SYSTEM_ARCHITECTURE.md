@@ -1,8 +1,8 @@
 # Component 01: System Architecture Deep Dive
 
-> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)  
-> **Component**: System Architecture  
-> **Last Updated**: December 3, 2025
+> **Parent Document**: [MVP Master Specification](../MVP_MASTER_SPECIFICATION.md)
+> **Component**: System Architecture
+> **Last Updated**: January 1, 2026
 
 ---
 
@@ -176,17 +176,20 @@ Example:
   6. Store in model_versions: { version_tag: 'v1.0', feature_weights: {...} }
 ```
 
-### Phase 5: Scoring
+### Phase 5: Scoring (Match %)
 ```
-Input:  New video with analysis
-Output: Virality score (0-10)
+Input:  New video with analysis + user profile
+Output: Match percentage (0-100)
 
 Example:
   1. New video analyzed, has visual_analysis
-  2. Call POST /api/model/predict with video features
-  3. Model applies learned weights:
-     virality = Σ(feature_value × feature_weight)
-  4. Returns: { virality_score: 7.2, confidence: 0.85, top_factors: [...] }
+  2. User completes onboarding chat → profile created
+  3. Call POST /api/model/match with video features + user profile
+  4. Model calculates:
+     - conceptScore (0-1): intrinsic quality
+     - profileFit (0-1): how well it fits user
+     - matchPercentage = (conceptScore × 0.6 + profileFit × 0.4) × 100
+  5. Returns: { match_percentage: 94, why_it_fits: [...], considerations: [...] }
 ```
 
 ### Phase 6: Listing
@@ -195,12 +198,11 @@ Input:  Scored concept
 Output: Active listing in marketplace
 
 Example:
-  1. Concept has virality_score = 7.2
+  1. Concept has match_percentage = 94% for user
   2. Check evergreen_eligible = true (no memes, no trending sounds)
-  3. Calculate price: base($5) + virality($36) = $41 USD
-  4. Adjust for Indonesia: $41 × 0.25 PPP = $10.25
-  5. Add premium: $10.25 × 1.12 = $11.48
-  6. Create listing_window: 72 hours, cap 5/market, 15/global
+  3. Calculate price: base($20) + match bonus(94% × $10) = $29.40 USD
+  4. Adjust for Indonesia: $29.40 × 0.25 PPP = $7.35
+  5. Create listing_window: 72 hours, cap 5/market, 15/global
 ```
 
 ### Phase 7: Purchase
