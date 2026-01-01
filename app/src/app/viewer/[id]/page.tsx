@@ -138,8 +138,8 @@ export default function ViewerPage({ params }: PageProps) {
             </Group>
           </div>
 
-          <Button variant="light" onClick={() => router.push(`/submit/${concept.id}`)}>
-            Submit your video
+          <Button variant="light" onClick={() => router.push("/my-concepts")}>
+            My Concepts
           </Button>
         </Group>
 
@@ -333,13 +333,13 @@ export default function ViewerPage({ params }: PageProps) {
               <Button
                 fullWidth
                 variant="light"
-                onClick={() => router.push(`/submit/${concept.id}`)}
+                onClick={() => router.push("/my-concepts")}
               >
-                Done filming? Submit your video
+                Done filming? Submit your link
               </Button>
 
               <Text size="xs" c="dimmed" ta="center" mt="sm">
-                Submit to get cashback credit
+                Submit your TikTok link to earn credits
               </Text>
             </Card>
           </Grid.Col>
